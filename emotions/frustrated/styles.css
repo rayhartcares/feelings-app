@@ -1,0 +1,10 @@
+body {font-family:'Poppins',sans-serif;background:#f9fafb;margin:0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:30px;}
+.container {width:100%;max-width:600px;background:white;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.1);overflow:hidden;padding:30px;}
+.screen {display:none;} .screen.active {display:block;}
+h1 {text-align:center;margin-bottom:10px;} .subtitle {text-align:center;margin-bottom:20px;color:#555;}
+.btn {display:inline-block;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:12px;margin:10px;font-size:1em;cursor:pointer;transition:transform 0.2s ease;}
+.btn:hover {transform:scale(1.05);} .btn-negative {background:linear-gradient(135deg,#ff6b6b,#ee5a6f);} .btn-positive {background:linear-gradient(135deg,#51cf66,#38d9a9);} .btn-restart,.back-btn {background:#999;}
+.scenario-box,.result-box {padding:20px;border-radius:15px;margin-bottom:20px;}
+.reaction-buttons,.positive-choices {display:flex;flex-direction:column;align-items:center;}
+.choice-btn {background:linear-gradient(135deg,#74ebd5,#acb6e5);border:none;padding:15px;width:90%;border-radius:15px;margin:8px;font-weight:600;cursor:pointer;transition:background 0.3s ease;}
+.choice-btn:hover {background:linear-gradient(135deg,#a8edea,#fed6e3);}
