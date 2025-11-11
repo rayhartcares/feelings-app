@@ -1,121 +1,46 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emotions Explorer — FRUSTRATED</title>
-  <meta name="description" content="Mini-program about feeling FRUSTRATED. Same style as Angry; new scenarios, choices, and science." />
-  <link rel="stylesheet" href="styles.css" />
-  <style>@view-transition { navigation: auto; }</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotions Explorer 🌟 | Feelings-App</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 40px auto;
+      max-width: 800px;
+      line-height: 1.7;
+      color: #222;
+    }
+    h1, h2 { color: #4a148c; }
+    a { color: #007acc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul { list-style: disc; margin-left: 25px; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Screen 1: Gender (kept for style parity) -->
-    <div id="genderScreen" class="screen active">
-      <h1>🌟 Emotions Explorer 🌟</h1>
-      <p class="subtitle">Let's learn what to do when we feel <strong>Frustrated</strong>.</p>
+  <h1>feelings-app</h1>
+  <h2>Emotions Explorer 🌟</h2>
+  <p>An interactive web application to help children learn about emotions and develop positive coping strategies.</p>
 
-      <div class="scenario-box gradient-lilac">
-        <h3>Welcome!</h3>
-        <p>This program helps you practice calm, helpful reactions. Start by picking who you are.</p>
-      </div>
+  <h3>Features</h3>
+  <ul>
+    <li>Gender selection for personalized experience</li>
+    <li>Multiple emotions to explore (Angry, Frustrated, more coming soon)</li>
+    <li>Interactive scenarios with positive and negative reaction paths</li>
+    <li>Educational content about emotional intelligence</li>
+    <li>Beautiful, colorful, and engaging UI</li>
+  </ul>
 
-      <p class="center ask">Are you a boy or a girl?</p>
-      <div class="gender-buttons">
-        <button class="btn btn-boy" onclick="selectGender('boy')">👦 Boy</button>
-        <button class="btn btn-girl" onclick="selectGender('girl')">👧 Girl</button>
-      </div>
-    </div>
+  <h3>Currently Implemented</h3>
+  <ul>
+    <li><a href="emotions/angry/">😠 Angry Emotion</a> — complete with scenario, reactions, and 4 positive solution paths</li>
+    <li><a href="emotions/frustrated/">😤 Frustrated Emotion</a> — new program teaching patience and calm problem-solving</li>
+  </ul>
 
-    <!-- Screen 2: Emotion picker (kept, but only Frustrated is shown) -->
-    <div id="emotionScreen" class="screen">
-      <h1 class="title-gradient-frustrated">Choose an Emotion</h1>
-      <p class="subtitle">Today we're exploring: <strong>Frustrated</strong></p>
-      <div class="emotion-grid">
-        <div class="emotion-card selected" onclick="selectEmotion('frustrated')">
-          😣<br/>Frustrated
-        </div>
-      </div>
-      <button class="btn back-btn" onclick="showScreen('genderScreen')">← Back to Welcome</button>
-    </div>
-
-    <!-- Screen 3: Scenario (new content) -->
-    <div id="scenarioScreen" class="screen">
-      <h1 class="title-gradient-frustrated">😣 Feeling Frustrated</h1>
-
-      <div class="scenario-box gradient-amber">
-        <h3>Imagine this:</h3>
-        <p id="scenarioText">
-          You’ve tried the same homework problem three times. It still won’t work, and the page keeps
-          smudging. Your hands feel tight, your face is hot, and you want to crumple the paper.
-        </p>
-      </div>
-
-      <p class="center ask">How will you react?</p>
-      <div class="reaction-buttons">
-        <button class="btn btn-negative" onclick="showNegativeResult()">
-          <span>❌ Negative Reaction</span><br/><small>Quit, rip, or shout</small>
-        </button>
-        <button class="btn btn-positive" onclick="showPositiveChoices()">
-          <span>✅ Positive Reaction</span><br/><small>Pause, plan, and try again</small>
-        </button>
-      </div>
-
-      <button class="btn back-btn" onclick="showScreen('emotionScreen')">← Back to Emotions</button>
-    </div>
-
-    <!-- Screen 4: Negative result (new content) -->
-    <div id="negativeResultScreen" class="screen">
-      <h1 class="title-gradient-frustrated">Negative Reaction Result</h1>
-      <div class="result-box gradient-red">
-        <div class="result-image">😣💢🗑️</div>
-        <div class="result-text white-card">
-          <strong>What happened:</strong><br/>
-          You slammed your pencil, ripped the page, and yelled. Now you feel worse, the room is tense,
-          and starting over will take longer.<br/><br/>
-          <strong>The science:</strong><br/>
-          When frustration spikes, the amygdala fires “alarm” signals and floods your body with stress
-          hormones. That blocks the prefrontal cortex, the brain’s planning/logic center—so solutions feel
-          harder to see.
-        </div>
-      </div>
-      <button class="btn btn-restart" onclick="showScreen('scenarioScreen')">🔄 Try Again with Positive Reaction</button>
-      <button class="btn back-btn" onclick="showScreen('positiveChoicesScreen')">← Try Positive Solutions</button>
-    </div>
-
-    <!-- Screen 5: Positive choices (new content) -->
-    <div id="positiveChoicesScreen" class="screen">
-      <h1 class="title-gradient-green">Choose a Positive Response</h1>
-      <p class="subtitle">Pick one calm step to lower frustration, then continue.</p>
-      <div class="positive-choices">
-        <button class="choice-btn" onclick="showPositiveResult('break')">
-          <span class="emoji">⏸️</span><span class="text">Take a 2‑minute break & stretch</span>
-        </button>
-        <button class="choice-btn" onclick="showPositiveResult('chunk')">
-          <span class="emoji">🧩</span><span class="text">Break the task into smaller steps</span>
-        </button>
-        <button class="choice-btn" onclick="showPositiveResult('help')">
-          <span class="emoji">🧑‍🏫</span><span class="text">Ask for a hint from a helper</span>
-        </button>
-        <button class="choice-btn" onclick="showPositiveResult('selftalk')">
-          <span class="emoji">🗣️</span><span class="text">Use calm self‑talk: “I can try differently.”</span>
-        </button>
-      </div>
-      <button class="btn back-btn" onclick="showScreen('scenarioScreen')">← Back</button>
-    </div>
-
-    <!-- Screen 6: Positive result (new content) -->
-    <div id="positiveResultScreen" class="screen">
-      <h1 class="title-gradient-green">🌟 Positive Reaction Result 🌟</h1>
-      <div class="result-box gradient-blue">
-        <div class="result-image" id="positiveEmoji">🙂✨</div>
-        <div class="result-text white-card" id="positiveResultText"></div>
-      </div>
-      <button class="btn btn-restart" onclick="showScreen('genderScreen')">🔄 Start Over</button>
-      <button class="btn back-btn" onclick="showScreen('positiveChoicesScreen')">← Try Other Solutions</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+  <hr>
+  <p style="font-size:0.9em;color:#555;">Created by <strong>Ray Hart</strong> | Brave Feelings Lab<br>
+  Educational mini-programs for emotional intelligence learning.</p>
 </body>
 </html>
