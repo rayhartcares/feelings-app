@@ -1,0 +1,8 @@
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showNegativeResult(){showScreen('negativeResultScreen');}function showPositiveChoices(){showScreen('positiveChoicesScreen');}
+const positiveResults={pause:{emoji:"😌🌬️✨",text:"You took a deep breath, calmed down, and re-focused. Your brain’s parasympathetic system activated, lowering stress hormones. You felt more in control and solved one part at a time!"},
+help:{emoji:"🤝🙂🌟",text:"You asked an adult or friend for help. Working together released oxytocin—the trust hormone—and gave you new ideas. Frustration faded as teamwork brought results."},
+tryagain:{emoji:"💪🔁😊",text:"You chose to keep trying calmly. Each attempt improved your skill. This built persistence—your brain’s reward centers released dopamine when progress appeared!"},
+break:{emoji:"🚶‍♂️🌳😌",text:"You walked away for a minute, stretched, and cleared your mind. Movement released endorphins, helping your brain reset. When you returned, you finished with ease!"}};
+function showPositiveResult(choice){const result=positiveResults[choice];document.getElementById('positiveEmoji').textContent=result.emoji;
+document.getElementById('positiveResultText').innerHTML=`<strong style='font-size:1.2em;'>Great Job!</strong><br><br>${result.text}`;showScreen('positiveResultScreen');}
