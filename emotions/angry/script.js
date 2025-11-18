@@ -1,7 +1,58 @@
 
 const IMAGES = {
-  boy: {'01_trigger': './assets/boy/01_trigger.png', 'A1_throw': './assets/boy/A1_throw.png', 'A2_yell': './assets/boy/A2_yell.png', 'A3_panic': './assets/boy/A3_panic.png', 'A4_walk_angry': './assets/boy/A4_walk_angry.png', 'B1_breathe_1': './assets/angry/boy/B1_breathe_1.png', 'B1_breathe_2': './assets/angry/boy/B1_breathe_2.png', 'B1_breathe_3': './assets/angry/boy/B1_breathe_3.png', 'B2_stress_1': './assets/angry/boy/B2_stress_1.png', 'B2_stress_2': './assets/angry/boy/B2_stress_2.png', 'B2_stress_3': './assets/angry/boy/B2_stress_3.png', 'B3_walksafe_1': './assets/angry/boy/B3_walksafe_1.png', 'B3_walksafe_2': './assets/angry/boy/B3_walksafe_2.png', 'B3_walksafe_3': './assets/angry/boy/B3_walksafe_3.png', 'B4_talkadult_1': './assets/angry/boy/B4_talkadult_1.png', 'B4_talkadult_2': './assets/angry/boy/B4_talkadult_2.png', 'B4_talkadult_3': './assets/angry/boy/B4_talkadult_3.png', '99_reflection': './assets/angry/boy/99_reflection.png'},
-  girl: {'01_trigger': './assets/girl/01_trigger.png', 'A1_throw': './assets/girl/A1_throw.png', 'A2_yell': './assets/girl/A2_yell.png', 'A3_panic': './assets/girl/A3_panic.png', 'A4_walk_angry': './assets/girl/A4_walk_angry.png', 'B1_breathe_1': './assets/angry/girl/B1_breathe_1.png', 'B1_breathe_2': './assets/angry/girl/B1_breathe_2.png', 'B1_breathe_3': './assets/angry/girl/B1_breathe_3.png', 'B2_stress_1': './assets/angry/girl/B2_stress_1.png', 'B2_stress_2': './assets/angry/girl/B2_stress_2.png', 'B2_stress_3': './assets/angry/girl/B2_stress_3.png', 'B3_walksafe_1': './assets/angry/girl/B3_walksafe_1.png', 'B3_walksafe_2': './assets/angry/girl/B3_walksafe_2.png', 'B3_walksafe_3': './assets/angry/girl/B3_walksafe_3.png', 'B4_talkadult_1': './assets/angry/girl/B4_talkadult_1.png', 'B4_talkadult_2': './assets/angry/girl/B4_talkadult_2.png', 'B4_talkadult_3': './assets/angry/girl/B4_talkadult_3.png', '99_reflection': './assets/angry/girl/99_reflection.png'}
+  boy: {
+    '01_trigger': './assets/boy/01_trigger.png',
+
+    'A1_throw': './assets/boy/A1_throw.png',
+    'A2_yell': './assets/boy/A2_yell.png',
+    'A3_panic': './assets/boy/A3_panic.png',
+    'A4_walk_angry': './assets/boy/A4_walk_angry.png',
+
+    'B1_breathe_1': './assets/boy/B1_breathe_1.png',
+    'B1_breathe_2': './assets/boy/B1_breathe_2.png',
+    'B1_breathe_3': './assets/boy/B1_breathe_3.png',
+
+    'B2_stress_1': './assets/boy/B2_stress_1.png',
+    'B2_stress_2': './assets/boy/B2_stress_2.png',
+    'B2_stress_3': './assets/boy/B2_stress_3.png',
+
+    'B3_walksafe_1': './assets/boy/B3_walksafe_1.png',
+    'B3_walksafe_2': './assets/boy/B3_walksafe_2.png',
+    'B3_walksafe_3': './assets/boy/B3_walksafe_3.png',
+
+    'B4_talkadult_1': './assets/boy/B4_talkadult_1.png',
+    'B4_talkadult_2': './assets/boy/B4_talkadult_2.png',
+    'B4_talkadult_3': './assets/boy/B4_talkadult_3.png',
+
+    '99_reflection': './assets/boy/99_reflection.png'
+  },
+
+  girl: {
+    '01_trigger': './assets/girl/01_trigger.png',
+
+    'A1_throw': './assets/girl/A1_throw.png',
+    'A2_yell': './assets/girl/A2_yell.png',
+    'A3_panic': './assets/girl/A3_panic.png',
+    'A4_walk_angry': './assets/girl/A4_walk_angry.png',
+
+    'B1_breathe_1': './assets/girl/B1_breathe_1.png',
+    'B1_breathe_2': './assets/girl/B1_breathe_2.png',
+    'B1_breathe_3': './assets/girl/B1_breathe_3.png',
+
+    'B2_stress_1': './assets/girl/B2_stress_1.png',
+    'B2_stress_2': './assets/girl/B2_stress_2.png',
+    'B2_stress_3': './assets/girl/B2_stress_3.png',
+
+    'B3_walksafe_1': './assets/girl/B3_walksafe_1.png',
+    'B3_walksafe_2': './assets/girl/B3_walksafe_2.png',
+    'B3_walksafe_3': './assets/girl/B3_walksafe_3.png',
+
+    'B4_talkadult_1': './assets/girl/B4_talkadult_1.png',
+    'B4_talkadult_2': './assets/girl/B4_talkadult_2.png',
+    'B4_talkadult_3': './assets/girl/B4_talkadult_3.png',
+
+    '99_reflection': './assets/girl/99_reflection.png'
+  }
 };
 let character = null;
 let emotion = null;
