@@ -108,7 +108,8 @@ body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);col
   border-radius: 16px;
   padding: 10px 18px;
   margin: 8px auto;          /* center horizontally */
-  max-width: 420px;          /* shorter pill, not full width */
+  max-width: 420px;          /* shorter pill */
+  width: 100%;               /* grows up to 420px only */
   font-size: 0.98rem;
   font-weight: 500;
   color: #2b3147;
