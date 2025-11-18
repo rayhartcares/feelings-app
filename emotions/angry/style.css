@@ -106,16 +106,18 @@ body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);col
 .choice {
   background: #ffffff;
   border-radius: 16px;
-  padding: 10px 14px;
-  margin-bottom: 10px;
+  padding: 10px 18px;
+  margin: 8px auto;          /* center horizontally */
+  max-width: 420px;          /* shorter pill, not full width */
   font-size: 0.98rem;
   font-weight: 500;
   color: #2b3147;
   border: 2px solid rgba(0, 0, 0, 0);
   box-shadow: 0 4px 10px rgba(24, 32, 51, 0.06);
   cursor: pointer;
+  text-align: center;        /* center the text */
   transition: transform 0.12s ease, box-shadow 0.12s ease,
-              border-color 0.12s ease, background 0.12s ease;
+    border-color 0.12s ease, background 0.12s ease;
 }
 
 .choice:hover,
@@ -184,4 +186,9 @@ body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);col
   }
 
   .col.A,
-  .col.B {
+.col.B {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center child elements */
+}
+
