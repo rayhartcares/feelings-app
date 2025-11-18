@@ -135,17 +135,18 @@ function showReactionMenu(tab='neg'){ // 'neg' or 'pos'
   const cols=document.createElement('div'); cols.className='columns';
   const col=document.createElement('div'); col.className='col ' + (tab==='neg'?'A':'B');
 
-  const options = tab==='neg' ? [
-    ['Throw the toy', 'A1_throw'],
-    ['Yell loudly', 'A2_yell'],
-    ['Lie on the floor (meltdown)', 'A3_panic'],
-    ['Walk away angrily', 'A4_walk_angry']
-  ] : [
-    ['Take balloon breaths', 'B1_breathe'],
-    ['Squeeze a stress ball', 'B2_stress'],
-    ['Walk away safely', 'B3_walksafe'],
-    ['Talk to a grown-up', 'B4_talkadult']
-  ];
+  const options = tab === 'neg' ? [
+  ['💥 Throw the toy', 'A1_throw'],
+  ['😡 Yell loudly', 'A2_yell'],
+  ['😭 Lie on the floor (meltdown)', 'A3_panic'],
+  ['😤 Walk away angrily', 'A4_walk_angry']
+] : [
+  ['🎈 Take balloon breaths', 'B1_breathe'],
+  ['🧸 Squeeze a stress ball', 'B2_stress'],
+  ['🚶‍♂️ Walk away safely', 'B3_walksafe'],
+  ['👩‍🏫 Talk to a grown-up', 'B4_talkadult']
+];
+
 
   options.forEach(([label,key])=>{
     const ch=document.createElement('div'); ch.className='choice'; ch.textContent=label;
