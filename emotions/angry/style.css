@@ -23,3 +23,168 @@ body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);col
 .btn.outline{background:transparent;color:#0f172a;border:2px solid #0f172a}
 .small{font-size:.95rem;color:var(--muted)}
 .app-footer{text-align:center;color:var(--muted);padding:22px 8px 40px;border-top:1px solid var(--line)}
+/* === Brave Feelings Lab – Angry Screen Upgrade === */
+
+:root {
+  --bf-bg: #fff7fb;
+  --bf-card-neg: #ffe0e6;
+  --bf-card-pos: #d8fff2;
+  --bf-pill-neg: #ff7a9c;
+  --bf-pill-pos: #25c3a8;
+  --bf-accent: #3b2cff;
+  --bf-text-dark: #182033;
+}
+
+/* Whole screen container */
+.screen {
+  max-width: 1080px;
+  margin: 40px auto;
+  padding: 32px 36px 40px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #fff6ff 60%, #ffeef7 100%);
+  box-shadow: 0 22px 45px rgba(12, 17, 43, 0.08);
+}
+
+/* Heading area */
+.hero h2 {
+  font-size: 1.8rem;
+  color: var(--bf-text-dark);
+}
+
+.hero .meta {
+  color: #6b7185;
+  margin-top: 4px;
+}
+
+/* Tabs (Negative / Coping tools) */
+.tabs {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 4px;
+  background: #f3f4ff;
+  margin-bottom: 20px;
+}
+
+.tab {
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #5b6295;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s.ease;
+}
+
+.tab.active {
+  background: #ffffff;
+  color: var(--bf-accent);
+  box-shadow: 0 6px 14px rgba(59, 44, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Columns for negative / coping sections */
+.columns {
+  display: flex;
+  gap: 24px;
+}
+
+.col.A {
+  background: var(--bf-card-neg);
+  border-radius: 22px;
+  padding: 18px 18px 20px;
+  border: 2px solid #ffc0cf;
+}
+
+.col.B {
+  background: var(--bf-card-pos);
+  border-radius: 22px;
+  padding: 18px 18px 20px;
+  border: 2px solid #9ce4cf;
+}
+
+/* Each clickable choice */
+.choice {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #2b3147;
+  border: 2px solid rgba(0, 0, 0, 0);
+  box-shadow: 0 4px 10px rgba(24, 32, 51, 0.06);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+              border-color 0.12s ease, background 0.12s ease;
+}
+
+.choice:hover,
+.choice:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(24, 32, 51, 0.14);
+  border-color: rgba(59, 44, 255, 0.4);
+  background: #fdfbff;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: none;
+  background: var(--bf-accent);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(59, 44, 255, 0.36);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.btn:hover {
+  background: #2a1fd8;
+  box-shadow: 0 10px 22px rgba(59, 44, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn.outline {
+  background: #ffffff;
+  color: var(--bf-text-dark);
+  border: 2px solid #d0d4f7;
+  box-shadow: none;
+}
+
+.btn.outline:hover {
+  background: #f3f4ff;
+}
+
+/* Bottom button row */
+.cta-row {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cta-row .btn:first-child {
+  padding-inline: 20px;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .screen {
+    margin: 16px;
+    padding: 20px;
+  }
+
+  .columns {
+    flex-direction: column;
+  }
+
+  .col.A,
+  .col.B {
+    padding: 14px 14px 18px;
+  }
+}
