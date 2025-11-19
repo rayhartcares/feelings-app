@@ -88,7 +88,7 @@ function showEmotionMenu(){
   const c=document.createElement('div'); c.className='content columns';
   const angry=document.createElement('div'); angry.className='col A';
   angry.innerHTML='<h3>Angry</h3><p class="small">Feeling mad or upset.</p>';
-  angry.appendChild(media(IMAGES[character]['01_trigger']));
+  angry.appendChild(media(IMAGES[character]['02_trigger']));
   angry.appendChild(button('Explore Angry →','btn',()=>{emotion='angry'; showAngryIntro();}));
   c.appendChild(angry);
   const soon=document.createElement('div'); soon.className='col B';
