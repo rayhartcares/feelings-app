@@ -29,7 +29,7 @@ const IMAGES = {
 
   girl: {
     '01_trigger': './assets/girl/01_trigger.png',
-
+    '02_trigger': './assets/girl/02_trigger.png',
     'A1_throw': './assets/girl/A1_throw.png',
     'A2_yell': './assets/girl/A2_yell.png',
     'A3_panic': './assets/girl/A3_panic.png',
