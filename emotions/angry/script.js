@@ -101,7 +101,7 @@ function showAngryIntro(){
   clear();
   const el=document.createElement('section');
   el.appendChild(hero('Feeling Angry','Introduction'));
-  el.appendChild(media(IMAGES[character]['01_trigger']));
+  el.appendChild(media(IMAGES[character]['02_trigger']));
   const c=document.createElement('div'); c.className='content';
   c.appendChild(para('You feel mad or upset. It’s okay to feel angry — everyone does sometimes.'));
   const r=document.createElement('div'); r.className='cta-row';
@@ -114,7 +114,7 @@ function showAngryTrigger(){
   clear();
   const el=document.createElement('section');
   el.appendChild(hero('Situation Scene','What happened?'));
-  el.appendChild(media(IMAGES[character]['01_trigger']));
+  el.appendChild(media(IMAGES[character]['02_trigger']));
   const c=document.createElement('div'); c.className='content';
   c.appendChild(para('Someone grabbed the toy you were using. Your chest tightens and your face feels hot.'));
   const r=document.createElement('div'); r.className='cta-row';
