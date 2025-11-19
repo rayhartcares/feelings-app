@@ -2,7 +2,7 @@
 const IMAGES = {
   boy: {
     '01_trigger': './assets/boy/01_trigger.png',
-
+    '02_trigger': './assets/boy/02_trigger.png',
     'A1_throw': './assets/boy/A1_throw.png',
     'A2_yell': './assets/boy/A2_yell.png',
     'A3_panic': './assets/boy/A3_panic.png',
