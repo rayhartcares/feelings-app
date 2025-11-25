@@ -1,27 +1,568 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brave Feelings Lab – Angry (Neutral Edition)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css" />
-</head>
+const app = document.getElementById('app');
 
-<body>
-  <header class="app-header">
-    <h1>Brave Feelings Lab</h1>
-    <p class="subtitle">Emotion Navigator – ANGRY</p>
-  </header>
+const state = {
+  view: 'welcome',      // 'welcome' | 'trigger' | 'menu' | 'negative_throw' | ...
+  activeTab: 'negative',// 'negative' | 'coping'
+  currentTool: null,    // 'balloon' | 'squeeze' | 'walk' | 'talk'
+  toolStep: 1
+};
 
-  <main id="app"></main>
+// Data for negative reactions
+const negativeReactions = {
+  throw: {
+    title: 'Throwing Things',
+    emojiScene: '🧸💥',
+    description:
+      'You throw the toy as hard as you can. It might break and someone could get hurt. The anger is still burning inside.'
+  },
+  yell: {
+    title: 'Yelling Loudly',
+    emojiScene: '🗣️😫',
+    description:
+      'You yell so loudly that people cover their ears. Everyone feels tense and upset. The problem is still not solved.'
+  },
+  meltdown: {
+    title: 'Big Meltdown',
+    emojiScene: '😭🌊',
+    description:
+      'You fall to the floor, crying and kicking. Your body gets very tired. It is hard to use your words when you feel this way.'
+  },
+  walkaway: {
+    title: 'Stomping Away',
+    emojiScene: '😤🚪',
+    description:
+      'You stomp away and slam a door. The angry fire is still inside, and the problem is waiting for you when you come back.'
+  }
+};
 
-  <footer class="app-footer">
-    © 2025 Brave Feelings Lab
-  </footer>
+// Data for coping tools (3-step sequences)
+const copingTools = {
+  balloon: {
+    id: 'balloon',
+    name: 'Balloon Breathing',
+    steps: [
+      {
+        emoji: '🎈😤',
+        text: 'Imagine a big balloon in your tummy. Breathe in slowly through your nose and fill it up.'
+      },
+      {
+        emoji: '✋⏱️',
+        text: 'Hold your breath for 3 seconds. 1... 2... 3... Feel your body pause.'
+      },
+      {
+        emoji: '🌬️💨',
+        text: 'Blow the air out slowly through your mouth. Repeat if you still feel hot inside.'
+      }
+    ]
+  },
+  squeeze: {
+    id: 'squeeze',
+    name: 'Stress Squeeze',
+    steps: [
+      {
+        emoji: '🧸✊',
+        text: 'Grab a soft toy, pillow, or just your own hands. Squeeze them tight.'
+      },
+      {
+        emoji: '💪😣',
+        text: 'Squeeze all your muscles like a strong statue. Count to 5 in your head.'
+      },
+      {
+        emoji: '😌🍝',
+        text: 'Now let go and relax your body like a cooked noodle. Notice the calm feeling.'
+      }
+    ]
+  },
+  walk: {
+    id: 'walk',
+    name: 'Safe Walk',
+    steps: [
+      {
+        emoji: '🛑👀',
+        text: 'Pause. Look around for a safe space away from the problem.'
+      },
+      {
+        emoji: '🚶‍♂️🌳',
+        text: 'Walk slowly to that safe spot or to a window. Let your feet move the anger away.'
+      },
+      {
+        emoji: '👀🟦🟩',
+        text: 'Find 3 things that are blue or green. Say them in your head: “I see…”'
+      }
+    ]
+  },
+  talk: {
+    id: 'talk',
+    name: 'Talk to a Grown-up',
+    steps: [
+      {
+        emoji: '🙋‍♂️👩‍🏫',
+        text: 'Find a grown-up you trust: a parent, teacher, or caregiver.'
+      },
+      {
+        emoji: '🗣️💬',
+        text: 'Use your words: “I feel angry because…” Tell them what happened.'
+      },
+      {
+        emoji: '👂🤝',
+        text: 'Listen to their ideas and comfort. You are not alone with your big feeling.'
+      }
+    ]
+  }
+};
 
-  <script src="./script.js"></script>
-</body>
-</html>
+function setView(view) {
+  state.view = view;
+  render();
+}
 
+function setTab(tab) {
+  state.activeTab = tab;
+  render();
+}
 
+function startTool(toolKey) {
+  state.currentTool = toolKey;
+  state.toolStep = 1;
+  state.view = 'tool_sequence';
+  render();
+}
+
+function nextToolStep() {
+  const tool = copingTools[state.currentTool];
+  if (!tool) return;
+  if (state.toolStep < tool.steps.length) {
+    state.toolStep += 1;
+    render();
+  } else {
+    state.view = 'reflection';
+    render();
+  }
+}
+
+function restartTool() {
+  state.toolStep = 1;
+  render();
+}
+
+function restartFlow() {
+  state.view = 'welcome';
+  state.activeTab = 'negative';
+  state.currentTool = null;
+  state.toolStep = 1;
+  render();
+}
+
+/* VIEW TEMPLATES */
+
+function viewWelcome() {
+  return `
+    <div class="phone-frame fade-in">
+      <div class="phone-bar">
+        <span class="brand">Brave Feelings Lab</span>
+        <div class="status">
+          <span>Angry</span>
+          <span>😡</span>
+        </div>
+      </div>
+
+      <section class="screen center">
+        <div>
+          <h2 class="text-muted" style="margin: 4px 0 6px;">Emotion Navigator</h2>
+          <h1 style="margin: 0; font-size: 1.8rem; color: var(--accent-red);">ANGRY</h1>
+        </div>
+
+        <div>
+          <div class="enormous-emoji" style="margin: 10px 0;">😡</div>
+          <p class="text-muted" style="margin: 0 8px;">
+            Big feelings can feel like fire in your tummy.  
+            Let’s practice what to do when anger shows up.
+          </p>
+        </div>
+
+        <div class="bottom-row">
+          <button class="btn btn-primary btn-block" data-action="start">
+            START ▶
+          </button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function viewTrigger() {
+  return `
+    <div class="phone-frame fade-in">
+      <div class="phone-bar">
+        <span class="brand">Brave Feelings Lab</span>
+        <div class="status">
+          <span>Scene</span>
+          <span>🔥</span>
+        </div>
+      </div>
+
+      <section class="screen">
+        <div class="center">
+          <h2 style="margin: 4px 0;">Uh-oh, something happened!</h2>
+          <p class="text-muted" style="margin: 0 6px 10px;">
+            Look at this moment that can make someone feel angry.
+          </p>
+        </div>
+
+        <div class="panel center">
+          <div class="big-emoji">🧸➡️💔</div>
+          <p style="margin: 6px 0 0; font-size: 0.95rem;">
+            Your favourite toy breaks. Your chest feels tight.  
+            Your face feels hot. Your hands want to move fast.
+          </p>
+        </div>
+
+        <div class="panel" style="background:#fef3c7;">
+          <p style="margin: 0; font-size: 0.95rem;">
+            This is anger. Anger is not “bad” — it is a big alarm telling you
+            that something feels unfair, scary, or out of your control.
+          </p>
+        </div>
+
+        <div class="bottom-row">
+          <button class="btn btn-outline" data-action="back-welcome">Back</button>
+          <button class="btn btn-primary" data-action="to-menu">What do I do?</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function viewMenu() {
+  const isNeg = state.activeTab === 'negative';
+  return `
+    <div class="phone-frame fade-in">
+      <div class="phone-bar">
+        <span class="brand">Brave Feelings Lab</span>
+        <div class="status">
+          <span>Choices</span>
+          <span>🤔</span>
+        </div>
+      </div>
+
+      <section class="screen">
+        <div class="center">
+          <h2 style="margin: 4px 0;">What will you do?</h2>
+          <p class="text-muted" style="margin: 0;">
+            Tap a button to see what happens next.
+          </p>
+        </div>
+
+        <div class="tab-row">
+          <button class="tab tab-neg ${isNeg ? 'active' : ''}" data-action="tab-negative">
+            Negative reactions
+          </button>
+          <button class="tab tab-pos ${!isNeg ? 'active' : ''}" data-action="tab-coping">
+            Coping tools
+          </button>
+        </div>
+
+        ${
+          isNeg
+            ? `
+            <div class="choice-grid">
+              <button class="choice-card neg" data-action="neg-throw">
+                <span class="choice-emoji">💥</span>
+                <span class="choice-label">Throw</span>
+              </button>
+              <button class="choice-card neg" data-action="neg-yell">
+                <span class="choice-emoji">😡</span>
+                <span class="choice-label">Yell</span>
+              </button>
+              <button class="choice-card neg" data-action="neg-meltdown">
+                <span class="choice-emoji">😭</span>
+                <span class="choice-label">Meltdown</span>
+              </button>
+              <button class="choice-card neg" data-action="neg-walkaway">
+                <span class="choice-emoji">😤</span>
+                <span class="choice-label">Walk away</span>
+              </button>
+            </div>
+          `
+            : `
+            <div class="choice-grid">
+              <button class="choice-card pos" data-action="tool-balloon">
+                <span class="choice-emoji">🎈</span>
+                <span class="choice-label">Balloon breaths</span>
+              </button>
+              <button class="choice-card pos" data-action="tool-squeeze">
+                <span class="choice-emoji">🧸</span>
+                <span class="choice-label">Stress squeeze</span>
+              </button>
+              <button class="choice-card pos" data-action="tool-walk">
+                <span class="choice-emoji">🚶‍♂️</span>
+                <span class="choice-label">Safe walk</span>
+              </button>
+              <button class="choice-card pos" data-action="tool-talk">
+                <span class="choice-emoji">👩‍🏫</span>
+                <span class="choice-label">Talk to adult</span>
+              </button>
+            </div>
+          `
+        }
+
+        <div class="bottom-row">
+          <button class="btn btn-outline btn-block" data-action="back-trigger">
+            ⬅ Back to scene
+          </button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function viewNegativeOutcome(type) {
+  const data = negativeReactions[type];
+  return `
+    <div class="phone-frame fade-in">
+      <div class="phone-bar">
+        <span class="brand">Brave Feelings Lab</span>
+        <div class="status">
+          <span>Result</span>
+          <span>⚠️</span>
+        </div>
+      </div>
+
+      <section class="screen">
+        <div class="center">
+          <h2 style="margin: 4px 0;">${data.title}</h2>
+          <p class="text-muted" style="margin: 0;">This is one way anger can explode.</p>
+        </div>
+
+        <div class="panel center">
+          <div class="enormous-emoji" style="margin-bottom: 6px;">${data.emojiScene}</div>
+          <p style="margin: 0; font-size: 0.95rem;">${data.description}</p>
+        </div>
+
+        <div class="panel" style="background:#fee2e2;">
+          <p style="margin: 0; font-size: 0.9rem;">
+            Negative reactions might feel strong at first,  
+            but they do not fix the problem and often make it bigger.
+          </p>
+        </div>
+
+        <div class="bottom-row">
+          <button class="btn btn-outline" data-action="back-menu-neg">Try another</button>
+          <button class="btn btn-primary" data-action="go-coping">Go to coping tools ✨</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function viewToolSequence() {
+  const tool = copingTools[state.currentTool];
+  const stepData = tool.steps[state.toolStep - 1];
+
+  return `
+    <div class="phone-frame fade-in">
+      <div class="phone-bar">
+        <span class="brand">Brave Feelings Lab</span>
+        <div class="status">
+          <span>Tool</span>
+          <span>🛠️</span>
+        </div>
+      </div>
+
+      <section class="screen">
+        <div class="center">
+          <h2 style="margin: 4px 0;">${tool.name}</h2>
+          <p class="text-muted" style="margin: 0;">
+            Step-by-step way to calm your body.
+          </p>
+        </div>
+
+        <div class="center" style="margin-top: 4px;">
+          <span class="step-pill">
+            <span>Step ${state.toolStep} / ${tool.steps.length}</span>
+          </span>
+        </div>
+
+        <div class="panel center">
+          <div class="enormous-emoji" style="margin-bottom: 8px;">${stepData.emoji}</div>
+          <p style="margin: 0; font-size: 1rem;">${stepData.text}</p>
+        </div>
+
+        <div class="bottom-row">
+          <button class="btn btn-outline" data-action="tool-restart">Restart tool</button>
+          <button class="btn btn-primary" data-action="tool-next">
+            ${state.toolStep === tool.steps.length ? 'Finish ✨' : 'Next step ▶'}
+          </button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function viewReflection() {
+  return `
+    <div class="phone-frame fade-in">
+      <div class="phone-bar">
+        <span class="brand">Brave Feelings Lab</span>
+        <div class="status">
+          <span>Reflection</span>
+          <span>🌈</span>
+        </div>
+      </div>
+
+      <section class="screen center">
+        <div>
+          <h2 style="margin: 4px 0;">You did it!</h2>
+          <p class="text-muted" style="margin: 0;">
+            You used a coping tool to calm your anger.
+          </p>
+        </div>
+
+        <div>
+          <div class="reflection-emoji" style="margin: 8px 0;">😊✨</div>
+        </div>
+
+        <div class="panel">
+          <p style="margin: 0; font-size: 1rem;">
+            When you slow down your body, your brain turns its thinking lights back on.  
+            You are learning how to be the boss of your big feelings.
+          </p>
+        </div>
+
+        <div class="bottom-row" style="flex-direction: column; gap: 8px;">
+          <button class="btn btn-primary btn-block" data-action="restart-anger">
+            Restart Angry mini-program
+          </button>
+          <button class="btn btn-outline btn-block" data-action="restart-anger">
+            Choose a different emotion (later)
+          </button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+/* MAIN RENDER */
+
+function render() {
+  let html = '';
+
+  switch (state.view) {
+    case 'welcome':
+      html = viewWelcome();
+      break;
+    case 'trigger':
+      html = viewTrigger();
+      break;
+    case 'menu':
+      html = viewMenu();
+      break;
+    case 'negative_throw':
+      html = viewNegativeOutcome('throw');
+      break;
+    case 'negative_yell':
+      html = viewNegativeOutcome('yell');
+      break;
+    case 'negative_meltdown':
+      html = viewNegativeOutcome('meltdown');
+      break;
+    case 'negative_walkaway':
+      html = viewNegativeOutcome('walkaway');
+      break;
+    case 'tool_sequence':
+      html = viewToolSequence();
+      break;
+    case 'reflection':
+      html = viewReflection();
+      break;
+    default:
+      html = viewWelcome();
+  }
+
+  app.innerHTML = html;
+  attachHandlers();
+}
+
+/* EVENT HANDLERS */
+
+function attachHandlers() {
+  const root = app;
+
+  root.querySelectorAll('[data-action="start"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('trigger'))
+  );
+
+  root.querySelectorAll('[data-action="back-welcome"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('welcome'))
+  );
+
+  root.querySelectorAll('[data-action="to-menu"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('menu'))
+  );
+
+  root.querySelectorAll('[data-action="back-trigger"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('trigger'))
+  );
+
+  root.querySelectorAll('[data-action="tab-negative"]').forEach(btn =>
+    btn.addEventListener('click', () => setTab('negative'))
+  );
+
+  root.querySelectorAll('[data-action="tab-coping"]').forEach(btn =>
+    btn.addEventListener('click', () => setTab('coping'))
+  );
+
+  // Negative choice clicks
+  root.querySelectorAll('[data-action="neg-throw"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('negative_throw'))
+  );
+  root.querySelectorAll('[data-action="neg-yell"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('negative_yell'))
+  );
+  root.querySelectorAll('[data-action="neg-meltdown"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('negative_meltdown'))
+  );
+  root.querySelectorAll('[data-action="neg-walkaway"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('negative_walkaway'))
+  );
+
+  // Back / forward around negative outcomes
+  root.querySelectorAll('[data-action="back-menu-neg"]').forEach(btn =>
+    btn.addEventListener('click', () => setView('menu'))
+  );
+  root.querySelectorAll('[data-action="go-coping"]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      state.activeTab = 'coping';
+      setView('menu');
+    })
+  );
+
+  // Tools
+  root.querySelectorAll('[data-action="tool-balloon"]').forEach(btn =>
+    btn.addEventListener('click', () => startTool('balloon'))
+  );
+  root.querySelectorAll('[data-action="tool-squeeze"]').forEach(btn =>
+    btn.addEventListener('click', () => startTool('squeeze'))
+  );
+  root.querySelectorAll('[data-action="tool-walk"]').forEach(btn =>
+    btn.addEventListener('click', () => startTool('walk'))
+  );
+  root.querySelectorAll('[data-action="tool-talk"]').forEach(btn =>
+    btn.addEventListener('click', () => startTool('talk'))
+  );
+
+  root.querySelectorAll('[data-action="tool-next"]').forEach(btn =>
+    btn.addEventListener('click', nextToolStep)
+  );
+  root.querySelectorAll('[data-action="tool-restart"]').forEach(btn =>
+    btn.addEventListener('click', restartTool)
+  );
+
+  // Reflection / restart
+  root.querySelectorAll('[data-action="restart-anger"]').forEach(btn =>
+    btn.addEventListener('click', restartFlow)
+  );
+}
+
+/* INIT */
+render();
