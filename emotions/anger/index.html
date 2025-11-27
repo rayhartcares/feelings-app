@@ -1,48 +1,560 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Anger Mini-Program</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brave Feelings Lab - ANGRY</title>
+    
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- 3. Load Babel (translates React for the browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: #0f172a;
-        color: #f9fafb;
-      }
-      .card {
-        padding: 24px 32px;
-        border-radius: 16px;
-        background: #020617;
-        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
-        max-width: 480px;
-        text-align: center;
-      }
-      h1 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        font-size: 1.8rem;
-      }
-      p {
-        margin: 0;
-        line-height: 1.5;
-      }
+        /* Animation Keyframes */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+        
+        @keyframes bounce-slow { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-10px); } 
+        }
+        .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
+        
+        @keyframes shake {
+          0% { transform: translate(1px, 1px) rotate(0deg); }
+          10% { transform: translate(-1px, -2px) rotate(-1deg); }
+          20% { transform: translate(-3px, 0px) rotate(1deg); }
+          30% { transform: translate(3px, 2px) rotate(0deg); }
+          40% { transform: translate(1px, -1px) rotate(1deg); }
+          50% { transform: translate(-1px, 2px) rotate(-1deg); }
+          60% { transform: translate(-3px, 1px) rotate(0deg); }
+          70% { transform: translate(3px, 1px) rotate(-1deg); }
+          80% { transform: translate(-1px, -1px) rotate(1deg); }
+          90% { transform: translate(1px, 2px) rotate(0deg); }
+          100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .animate-shake { animation: shake 0.5s infinite; }
+        
+        @keyframes pulse-fast { 
+            0%, 100% { transform: scale(1); opacity: 0.8; } 
+            50% { transform: scale(1.05); opacity: 1; } 
+        }
+        .animate-pulse-fast { animation: pulse-fast 0.3s infinite; }
+        
+        @keyframes steam {
+          0% { opacity: 0; transform: translateY(5px) scale(0.5); }
+          50% { opacity: 0.8; transform: translateY(-10px) scale(1); }
+          100% { opacity: 0; transform: translateY(-25px) scale(1.5); }
+        }
+        .animate-steam-left { animation: steam 0.8s infinite linear; }
+        .animate-steam-right { animation: steam 0.8s infinite linear reverse; }
+
+        @keyframes throw { 
+            0% { transform: translate(-100px, 50px) rotate(0deg); opacity: 0; } 
+            20% { opacity: 1; } 
+            80% { transform: translate(120px, -50px) rotate(360deg); opacity: 1; } 
+            100% { transform: translate(140px, -40px) rotate(380deg); opacity: 0; } 
+        }
+        .animate-throw { animation: throw 1.5s infinite linear; }
+
+        @keyframes tantrum { 
+            0% { transform: rotate(90deg) translateX(0px); } 
+            25% { transform: rotate(85deg) translateX(-5px); } 
+            50% { transform: rotate(95deg) translateX(5px); } 
+            75% { transform: rotate(85deg) translateX(-5px); } 
+            100% { transform: rotate(90deg) translateX(0px); } 
+        }
+        .animate-tantrum { animation: tantrum 0.3s infinite linear; }
+
+        @keyframes ping {
+            75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
     </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>Anger Mini-Program</h1>
-      <p>
-        This is the live Anger page.<br />
-        The advanced React version of the app is stored privately in GitHub and
-        not running here yet.
-      </p>
-    </div>
-  </body>
+</head>
+<body class="bg-sky-100 min-h-screen flex items-center justify-center font-sans">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        // --- Sound Engine (Web Audio API) ---
+        const SoundEngine = {
+            ctx: null,
+            bgNodes: [], 
+            bgInterval: null,
+            isBgPlaying: false,
+            currentTrack: 'titanic', 
+
+            init: function() {
+                if (!this.ctx) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+
+            playMusic: function(style) {
+                if (this.ctx && this.ctx.state === 'suspended') return;
+                
+                this.stopBackgroundMusic(); 
+                this.currentTrack = style;
+                this.isBgPlaying = true;
+
+                if (style === 'chandelier') this.playChandelier();
+                else if (style === 'happy') this.playHappy();
+                else if (style === 'anthem') this.playAnthem();
+                else if (style === 'dontspeak') this.playDontSpeak();
+                else if (style === 'jw') this.playJW();
+                else if (style === 'goodnews') this.playGoodNews();
+                else if (style === 'sun') this.playSun();
+                else if (style === 'titanic') this.playTitanic();
+            },
+
+            stopBackgroundMusic: function() {
+                if (this.bgInterval) {
+                    clearInterval(this.bgInterval);
+                    this.bgInterval = null;
+                }
+                this.bgNodes.forEach(node => {
+                    try {
+                        if (node.stop) node.stop();
+                        node.disconnect();
+                    } catch (e) {}
+                });
+                this.bgNodes = [];
+                this.isBgPlaying = false;
+            },
+
+            playTone: function(freq, type, duration, volume = 0.1) {
+                if (!this.ctx) this.init();
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(volume, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + duration);
+            },
+            playNoise: function(duration, volume = 0.2) {
+                if (!this.ctx) this.init();
+                const bufferSize = this.ctx.sampleRate * duration; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = this.ctx.createBufferSource(); noise.buffer = buffer;
+                const gain = this.ctx.createGain(); gain.gain.setValueAtTime(volume, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                noise.connect(gain); gain.connect(this.ctx.destination); noise.start();
+            },
+
+            playTitanic: function() {
+                if (!this.ctx) this.init();
+                let step = 0;
+                const stepTime = 0.15; 
+                const E4 = 329.63, Fs4 = 369.99, Gs4 = 415.30, A4 = 440.00, B4 = 493.88, B3 = 246.94;
+                const melodySequence = [
+                    { s: 0, f: E4 }, { s: 2, f: E4 }, { s: 4, f: E4 }, { s: 6, f: E4 }, 
+                    { s: 8, f: B4 }, 
+                    { s: 12, f: A4 }, { s: 13, f: Gs4 }, { s: 14, f: Fs4 }, { s: 15, f: Gs4 }, 
+                    { s: 16, f: A4 }, 
+                    { s: 20, f: Gs4 }, { s: 22, f: Fs4 }, { s: 24, f: E4 } 
+                ];
+
+                this.bgInterval = setInterval(() => {
+                    const now = this.ctx.currentTime;
+                    const localStep = step % 32;
+                    const note = melodySequence.find(n => n.s === localStep);
+                    if (note) {
+                        const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(note.f, now);
+                        gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.08, now + 0.1); gain.gain.linearRampToValueAtTime(0.06, now + 0.3); gain.gain.linearRampToValueAtTime(0, now + 0.6);
+                        const lfo = this.ctx.createOscillator(); lfo.frequency.value = 5; const lfoGain = this.ctx.createGain(); lfoGain.gain.value = 3;
+                        lfo.connect(lfoGain); lfoGain.connect(osc.frequency); lfo.start();
+                        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(now + 0.7);
+                    }
+                    if (localStep === 0 || localStep === 16) {
+                        const root = (localStep === 0) ? E4 : B3; const third = (localStep === 0) ? Gs4 : 311.13; const fifth = (localStep === 0) ? B4 : Fs4;
+                        [root/2, third/2, fifth/2].forEach(freq => { 
+                            const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(freq, now);
+                            const filter = this.ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 400; 
+                            gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.05, now + 1); gain.gain.linearRampToValueAtTime(0, now + (stepTime * 16));
+                            osc.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(now + (stepTime * 16));
+                        });
+                    }
+                    step++;
+                }, stepTime * 1000);
+            },
+            
+            // Placeholders for other tracks
+            playChandelier: function() {}, playHappy: function() {}, playAnthem: function() {}, playDontSpeak: function() {}, playJW: function() {}, playGoodNews: function() {}, playSun: function() {},
+
+            playClick: function() { this.playTone(800, 'sine', 0.1, 0.1); },
+            playStart: function() { this.playTone(400, 'triangle', 0.3, 0.1); }, 
+            playSuccess: function() { setTimeout(() => this.playTone(523.25, 'sine', 0.6, 0.1), 0); setTimeout(() => this.playTone(659.25, 'sine', 0.6, 0.1), 100); setTimeout(() => this.playTone(783.99, 'sine', 0.8, 0.1), 200); },
+            playWhoosh: function() { this.playNoise(0.3, 0.1); },
+            playCrash: function() { this.playNoise(0.5, 0.3); },
+            playMeltdown: function() { this.playTone(150, 'sawtooth', 0.4, 0.2); },
+            playYell: function() { this.playTone(300, 'sawtooth', 0.6, 0.2); },
+            playWalkAway: function() { this.playTone(200, 'square', 0.1, 0.05); setTimeout(() => this.playTone(300, 'square', 0.1, 0.05), 100); },
+            playBreathIn: function() { this.playNoise(1.5, 0.05); },
+            playBreathOut: function() { this.playNoise(1.5, 0.05); }
+        };
+
+        // --- REDESIGNED KID CHARACTER ---
+        const FuriousKidSVG = () => {
+            return (
+                <svg viewBox="0 0 200 220" className="w-64 h-64 animate-shake origin-bottom">
+                    {/* Background Burst */}
+                    <path d="M100,10 L115,35 L140,25 L130,50 L155,60 L130,75 L145,100 L120,100 L120,130 L100,110 L80,130 L80,100 L55,100 L70,75 L45,60 L70,50 L60,25 L85,35 Z"
+                            fill="#FFEBEE" stroke="#FFCDD2" strokeWidth="2" className="animate-pulse-fast" opacity="0.5" />
+
+                    {/* Body - Tiny and short neck for 'kid' look */}
+                    <path d="M70,180 Q100,185 130,180 V220 H70 Z" fill="#42A5F5" stroke="#1976D2" strokeWidth="2" />
+                    <path d="M70,180 Q100,185 130,180" fill="none" stroke="#1E88E5" strokeWidth="2" /> 
+
+                    {/* Head - LARGE and Round (Chubby cheeks) */}
+                    <ellipse cx="100" cy="110" rx="75" ry="70" fill="#FFCCBC" stroke="#E64A19" strokeWidth="2" />
+                    
+                    {/* Angry Red Flush Gradient - Centered low */}
+                    <defs>
+                        <radialGradient id="kidFlush" cx="50%" cy="60%" r="40%">
+                        <stop offset="0%" stopColor="#FF5252" stopOpacity="0.5" />
+                        <stop offset="100%" stopColor="#FFCCBC" stopOpacity="0" />
+                        </radialGradient>
+                    </defs>
+                    <ellipse cx="100" cy="110" rx="65" ry="60" fill="url(#kidFlush)" />
+
+                    {/* Ears - Stick out a bit (cute) */}
+                    <circle cx="28" cy="115" r="12" fill="#FFCCBC" stroke="#E64A19" strokeWidth="2" />
+                    <circle cx="172" cy="115" r="12" fill="#FFCCBC" stroke="#E64A19" strokeWidth="2" />
+
+                    {/* Hair - Messy mop top */}
+                    <path d="M30,90 Q20,50 50,40 Q80,20 100,30 Q130,20 160,40 Q180,50 170,90 Q160,60 130,50 Q100,40 70,50 Q40,60 30,90" fill="#5D4037" stroke="#3E2723" strokeWidth="2" />
+
+                    {/* Eyebrows - Low and angled, but short (not wrinkles) */}
+                    <path d="M60,100 L85,115" stroke="#3E2723" strokeWidth="5" strokeLinecap="round" />
+                    <path d="M140,100 L115,115" stroke="#3E2723" strokeWidth="5" strokeLinecap="round" />
+
+                    {/* Eyes - HUGE circles, positioned LOW on face */}
+                    <circle cx="75" cy="125" r="14" fill="white" stroke="#3E2723" strokeWidth="2" />
+                    <circle cx="125" cy="125" r="14" fill="white" stroke="#3E2723" strokeWidth="2" />
+                    
+                    {/* Pupils - Glaring inward */}
+                    <circle cx="80" cy="125" r="5" fill="#3E2723" /> 
+                    <circle cx="120" cy="125" r="5" fill="#3E2723" /> 
+
+                    {/* Mouth - Wide Open Wailing (Bean shape) */}
+                    <path d="M80,150 Q100,175 120,150 Q120,140 100,140 Q80,140 80,150 Z" fill="#B71C1C" stroke="#3E2723" strokeWidth="2" />
+                    <path d="M90,160 Q100,165 110,160" fill="none" stroke="#E57373" strokeWidth="3" strokeLinecap="round" />
+
+                    {/* Tears - Flying off */}
+                    <circle cx="50" cy="135" r="5" fill="#4FC3F7" className="animate-ping" />
+                    <circle cx="150" cy="135" r="5" fill="#4FC3F7" className="animate-ping" style={{animationDelay: '0.3s'}} />
+
+                    {/* Steam */}
+                    <path d="M30,70 Q10,50 40,40" fill="none" stroke="#CFD8DC" strokeWidth="3" className="animate-steam-left" opacity="0.7" />
+                    <path d="M170,70 Q190,50 160,40" fill="none" stroke="#CFD8DC" strokeWidth="3" className="animate-steam-right" opacity="0.7" />
+                </svg>
+            );
+        };
+
+        const ActionScene = ({ type, character, playSound }) => {
+            const charEmoji = character === 'boy' ? '😠' : '😡';
+            useEffect(() => {
+                if (type === 'throw') { playSound('throw_whoosh'); setTimeout(() => playSound('throw_crash'), 800); } 
+                else if (type === 'meltdown') { playSound('meltdown'); }
+            }, [type, playSound]);
+
+            if (type === 'throw') return (
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-red-50 rounded-3xl">
+                    <div className="text-8xl absolute left-4 bottom-4 z-10">{charEmoji}</div>
+                    <div className="absolute text-6xl animate-throw">🧸</div>
+                    <div className="absolute right-4 top-10 text-6xl animate-pulse delay-700">💥</div>
+                </div>
+            );
+            if (type === 'meltdown') return (
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-red-50 rounded-3xl">
+                    <div className="text-8xl animate-tantrum origin-bottom">😫</div>
+                    <div className="absolute top-1/4 left-1/4 text-4xl animate-bounce delay-100">💦</div>
+                    <div className="absolute top-1/3 right-1/4 text-4xl animate-bounce delay-300">💧</div>
+                    <div className="absolute top-4 text-5xl animate-pulse">⚡</div>
+                </div>
+            );
+            return null;
+        };
+
+        const ToolIntro = ({ tool, onStart, onBack }) => {
+            return (
+                <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${tool.intro.bgColor || 'bg-white'}`}>
+                <div className="w-full flex justify-start mb-2">
+                    <button onClick={onBack} className="text-gray-500 text-sm font-bold">⬅ Back</button>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">{tool.intro.title || tool.name}</h2>
+                <div className="text-9xl mb-6 animate-bounce-slow">{tool.intro.emoji}</div>
+                <div className="bg-white/80 p-4 rounded-xl backdrop-blur-sm mb-4">
+                    <p className="text-lg font-medium text-gray-700 leading-snug">{tool.intro.desc}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100 mb-4 text-left w-full">
+                    <h3 className="text-sm font-bold text-blue-600 mb-1">🔬 Why it works:</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">{tool.intro.science}</p>
+                </div>
+                <button onClick={onStart} className={`w-full py-4 text-white font-bold text-xl rounded-xl shadow-lg transform transition hover:scale-105 ${tool.intro.btnColor || 'bg-blue-500'}`}>
+                    Start Tool ▶
+                </button>
+                </div>
+            );
+        };
+
+        const ToolSequence = ({ tool, step, onRestart, onNext, playSound }) => {
+            const currentStepData = tool.steps[step - 1];
+            const isLongContent = currentStepData.emoji.length > 5;
+            useEffect(() => { if (currentStepData && currentStepData.sound) playSound(currentStepData.sound); }, [step, currentStepData, playSound]);
+            return (
+                <div className="flex flex-col h-full justify-between items-center text-center p-2">
+                <div className="w-full flex justify-between items-center mb-2">
+                    <h2 className="text-xl font-bold text-green-700">{tool.name}</h2>
+                    <span className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-bold">Step {step}/3</span>
+                </div>
+                <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden">
+                    <div className={`${isLongContent ? 'text-6xl tracking-widest' : 'text-9xl'} mb-6 transform transition-all hover:scale-110 duration-500 cursor-default`}>
+                        {currentStepData.emoji}
+                    </div>
+                    <p className="text-xl text-gray-700 font-medium px-4 bg-green-50 py-6 rounded-2xl w-full border border-green-100">{currentStepData.text}</p>
+                </div>
+                <div className="w-full flex gap-3 mt-4">
+                    <button onClick={onRestart} className="flex-1 py-3 bg-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-300">Restart</button>
+                    <button onClick={onNext} className="flex-2 w-2/3 py-3 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600">{step === 3 ? 'Finish!' : 'Next Step ➡️'}</button>
+                </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [currentView, setCurrentView] = useState('welcome');
+            const [character, setCharacter] = useState('boy'); 
+            const [activeTab, setActiveTab] = useState('negative');
+            const [soundEnabled, setSoundEnabled] = useState(true);
+            const [musicStyle, setMusicStyle] = useState('titanic'); 
+            
+            const [currentTool, setCurrentTool] = useState(null);
+            const [toolStep, setToolStep] = useState(1);
+
+            const playSound = useCallback((key) => {
+                if (!soundEnabled) return;
+                try {
+                    if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') SoundEngine.ctx.resume();
+                    if (key === 'start' || key === 'click' || key === 'music_change') SoundEngine.playMusic(musicStyle);
+                    if (key !== 'music_change') {
+                        switch(key) {
+                            case 'click': SoundEngine.playClick(); break;
+                            case 'start': SoundEngine.playStart(); break;
+                            case 'success': SoundEngine.playSuccess(); break;
+                            case 'throw_whoosh': SoundEngine.playWhoosh(); break;
+                            case 'throw_crash': SoundEngine.playCrash(); break;
+                            case 'meltdown': SoundEngine.playMeltdown(); break;
+                            case 'yell': SoundEngine.playYell(); break;
+                            case 'walkaway': SoundEngine.playWalkAway(); break;
+                            case 'breath_in': SoundEngine.playBreathIn(); break;
+                            case 'breath_out': SoundEngine.playBreathOut(); break;
+                            default: break;
+                        }
+                    }
+                } catch (e) { console.error("Sound Error", e); }
+            }, [soundEnabled, musicStyle]);
+
+            const safePlay = (key) => playSound(key);
+
+            const cycleMusic = () => {
+                const styles = ['chandelier', 'happy', 'anthem', 'dontspeak', 'jw', 'goodnews', 'sun', 'titanic'];
+                const nextIndex = (styles.indexOf(musicStyle) + 1) % styles.length;
+                const nextStyle = styles[nextIndex];
+                setMusicStyle(nextStyle);
+                if (soundEnabled && SoundEngine.ctx) {
+                     if (SoundEngine.ctx.state === 'suspended') SoundEngine.ctx.resume();
+                     SoundEngine.playMusic(nextStyle);
+                }
+            };
+            const getMusicLabel = () => {
+                if (musicStyle === 'chandelier') return 'Pop 🎤';
+                if (musicStyle === 'happy') return 'Happy ☀️';
+                if (musicStyle === 'anthem') return 'Anthem 🥁';
+                if (musicStyle === 'dontspeak') return 'Sad 🎸';
+                if (musicStyle === 'jw') return 'Acoustic 📖';
+                if (musicStyle === 'goodnews') return 'Epic 🎻';
+                if (musicStyle === 'sun') return 'Sun ☀️';
+                if (musicStyle === 'titanic') return 'Titanic 🚢';
+            };
+
+            const negativeReactions = {
+                throw: { type: 'throw', title: 'Throwing Things', scene: null, desc: 'Oh no! Throwing toys makes a big mess and might break something special.', bgColor: 'bg-red-100', btnColor: 'bg-red-500' },
+                yell: { type: 'emoji', emoji: '🗣️', title: 'Yelling Loudly', scene: '📢😫👂', desc: 'Yelling hurts people\'s ears and makes them feel sad or scared.', bgColor: 'bg-orange-100', btnColor: 'bg-orange-500' },
+                meltdown: { type: 'meltdown', emoji: '😭', title: 'Having a Meltdown', scene: null, desc: 'Crying on the floor makes it hard to use your words to fix the problem.', bgColor: 'bg-red-50', btnColor: 'bg-red-400' },
+                walkaway: { type: 'emoji', emoji: '😤', title: 'Stomping Away', scene: '🚪🏃💨', desc: 'Running away doesn\'t fix the problem. The problem is still there when you come back.', bgColor: 'bg-gray-100', btnColor: 'bg-gray-500' }
+            };
+
+            const copingTools = {
+                balloon: { 
+                    id: 'balloon', name: 'Balloon Breathing', 
+                    intro: { emoji: '🎈', title: 'Balloon Breathing', desc: 'Pretend there is a big balloon in your tummy. Let\'s fill it up with air!', science: 'Deep breathing signals your brain to calm down by activating the parasympathetic nervous system. It lowers your heart rate and helps you think clearly.', bgColor: 'bg-blue-50', btnColor: 'bg-blue-500' },
+                    steps: [ { emoji: '🎈😤', text: 'Imagine a balloon in your tummy. Take a big breath in through your nose to fill it up!', sound: 'breath_in' }, { emoji: '✋🛑', text: 'Hold that breath for 3 seconds. 1... 2... 3...', sound: null }, { emoji: '🌬️💨', text: 'Now let the air out slowly through your mouth. Whoosh!', sound: 'breath_out' } ]
+                },
+                squeeze: { 
+                    id: 'squeeze', name: 'Stress Squeeze',
+                    intro: { emoji: '🧸', title: 'Stress Squeeze', desc: 'Use your muscles to squeeze out all the angry feelings!', science: 'Progressive Muscle Relaxation (PMR) helps release physical tension that builds up when we are angry. Squeezing and releasing muscles tells your body it is safe to relax.', bgColor: 'bg-purple-50', btnColor: 'bg-purple-500' },
+                    steps: [ { emoji: '🧸✊', text: 'Find a soft toy or a pillow, or just clasp your hands together.', sound: 'click' }, { emoji: '💪😫', text: 'Squeeze all your muscles TIGHT! Count to 5!', sound: 'click' }, { emoji: '😌✨', text: 'Let go and relax your body like a cooked noodle.', sound: 'breath_out' } ]
+                },
+                walk: { 
+                    id: 'walk', name: 'Safe Walk',
+                    intro: { emoji: '🚶‍♂️', title: 'Safe Walk', desc: 'Move your body to a safe place to cool down.', science: 'Removing yourself from the situation (the trigger) stops the immediate stress response. Walking also burns off the extra adrenaline produced by anger.', bgColor: 'bg-green-50', btnColor: 'bg-green-500' },
+                    steps: [ { emoji: '🛑👀', text: 'Stop what you are doing. Look for a safe place.', sound: 'click' }, { emoji: '🚶‍♂️🌳', text: 'Walk slowly to your safe spot or a window.', sound: 'walkaway' }, { emoji: '👀🦋', text: 'Find 3 things that are blue or green to look at.', sound: 'success' } ]
+                },
+                count: { 
+                    id: 'count', name: 'Count to 10',
+                    intro: { emoji: '🔢', title: 'Count to 10', desc: 'Slow down your brain by counting slowly to ten.', science: 'Counting requires focus and concentration. This distracts your brain from angry thoughts and gives your impulse control center time to catch up.', bgColor: 'bg-indigo-50', btnColor: 'bg-indigo-500' },
+                    steps: [ { emoji: '1️⃣ 2️⃣ 3️⃣', text: 'Close your eyes. Start counting slowly. One... Two... Three...', sound: 'click' }, { emoji: '4️⃣ 5️⃣ 6️⃣', text: 'Keep going. Take a breath between each number. Four... Five... Six...', sound: 'click' }, { emoji: '7️⃣ 8️⃣ 9️⃣ 🔟', text: 'Almost there! Seven... Eight... Nine... Ten! Open your eyes.', sound: 'success' } ]
+                }
+            };
+
+            const handleStart = () => { safePlay('start'); setCurrentView('character'); };
+            const selectCharacter = (char) => { safePlay('click'); setCharacter(char); setCurrentView('trigger'); };
+            const handleReactionClick = (reactionKey) => { 
+                if(reactionKey === 'yell') safePlay('yell'); if(reactionKey === 'walkaway') safePlay('walkaway');
+                setCurrentView(`negative_${reactionKey}`); 
+            };
+            const handleToolClick = (toolKey) => { safePlay('click'); setCurrentTool(toolKey); setToolStep(1); setCurrentView('tool_intro'); };
+            const startToolSequence = () => { safePlay('click'); setCurrentView('tool_sequence'); };
+            const nextToolStep = () => { if (toolStep < 3) { setToolStep(prev => prev + 1); } else { safePlay('success'); setCurrentView('reflection'); } };
+            const restartTool = () => { safePlay('click'); setToolStep(1); };
+            const restartApp = () => { safePlay('start'); setCurrentView('welcome'); setCharacter('boy'); setActiveTab('negative'); setCurrentTool(null); setToolStep(1); };
+            const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };
+            const goBack = () => {
+                safePlay('click');
+                if (currentView === 'character') setCurrentView('welcome');
+                else if (currentView === 'trigger') setCurrentView('character');
+                else if (currentView === 'menu') setCurrentView('trigger');
+                else if (currentView.startsWith('negative_')) setCurrentView('menu');
+                else if (currentView === 'tool_intro') setCurrentView('menu'); 
+                else if (currentView === 'tool_sequence') { setCurrentView('tool_intro'); setToolStep(1); } 
+                else if (currentView === 'reflection') setCurrentView('menu');
+                else if (currentView === 'restart') setCurrentView('reflection');
+                else if (currentView === 'goodbye') setCurrentView('welcome');
+            };
+            const toggleSound = () => {
+                const newState = !soundEnabled; setSoundEnabled(newState);
+                if (newState) {
+                    if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') SoundEngine.ctx.resume();
+                    if (currentView !== 'session_ended') SoundEngine.playMusic(musicStyle);
+                } else { SoundEngine.stopBackgroundMusic(); }
+            };
+
+            return (
+                <div className="w-full max-w-md h-[800px] max-h-[90vh] bg-white rounded-[40px] shadow-2xl overflow-hidden border-8 border-white ring-4 ring-sky-200 relative">
+                    {currentView !== 'session_ended' && (
+                    <div className="bg-slate-100 p-3 flex items-center justify-between border-b border-gray-200">
+                        <div className="flex gap-2 w-32">
+                        {currentView !== 'welcome' && currentView !== 'goodbye' && (<><button onClick={goBack} className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1">⬅️ Back</button><button onClick={restartApp} className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1">🏠 Home</button></>)}
+                        </div>
+                        <div className="flex flex-col items-center"><span className="font-bold text-gray-400 text-xs truncate hidden sm:block">Brave Feelings Lab</span>
+                        <button onClick={cycleMusic} className="mt-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-full hover:bg-blue-100 transition border border-blue-200">🎵 {getMusicLabel()}</button>
+                        </div>
+                        <div className="w-32 flex justify-end gap-2">
+                        <button onClick={toggleSound} className={`px-3 py-1 rounded-full shadow-sm font-bold text-sm transition ${soundEnabled ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-gray-200 text-gray-400'}`}>{soundEnabled ? '🔊' : '🔇'}</button>
+                        {currentView !== 'welcome' && currentView !== 'goodbye' && (<button onClick={handleExit} className="px-3 py-1 bg-red-100 text-red-600 rounded-full shadow-sm font-bold text-sm hover:bg-red-200 transition">Exit ❌</button>)}
+                        </div>
+                    </div>
+                    )}
+                    <div className="h-full p-6 pb-20 overflow-y-auto relative">
+                    {currentView === 'welcome' && (
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-fadeIn">
+                            <div className="space-y-2"><h1 className="text-4xl font-black text-red-500 tracking-wider">Brave Feelings Lab</h1><h2 className="text-2xl font-bold text-red-400">Emotion Navigator – ANGRY</h2></div>
+                            <FuriousKidSVG />
+                            <button onClick={handleStart} className="px-10 py-4 bg-red-500 text-white text-2xl font-bold rounded-full shadow-lg hover:bg-red-600 hover:scale-105 transition-all transform border-b-8 border-red-700 active:border-b-0 active:translate-y-2">START</button>
+                        </div>
+                    )}
+                    {currentView === 'character' && (
+                        <div className="flex flex-col items-center h-full text-center space-y-8 p-4">
+                        <h2 className="text-3xl font-bold text-gray-700">Who is playing today?</h2>
+                        <div className="flex justify-center gap-8 w-full">
+                            <div className="flex flex-col items-center space-y-4"><div className="text-8xl bg-blue-100 p-6 rounded-3xl border-4 border-blue-300">👦</div><button onClick={() => selectCharacter('boy')} className="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-md hover:bg-blue-600 transition">Use Boy</button></div>
+                            <div className="flex flex-col items-center space-y-4"><div className="text-8xl bg-pink-100 p-6 rounded-3xl border-4 border-pink-300">👧</div><button onClick={() => selectCharacter('girl')} className="px-6 py-3 bg-pink-500 text-white font-bold rounded-xl shadow-md hover:bg-pink-600 transition">Use Girl</button></div>
+                        </div>
+                        </div>
+                    )}
+                    {currentView === 'trigger' && (
+                        <div className="flex flex-col items-center h-full text-center justify-between py-6">
+                        <h2 className="text-2xl font-bold text-gray-700">Uh Oh! Something happened!</h2>
+                        <div className="bg-white p-8 rounded-3xl shadow-xl border-4 border-gray-200 w-full max-w-sm"><div className="text-8xl mb-4">🧸➡️💔</div><div className="text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">⚡</div></div>
+                        <p className="text-xl font-medium text-gray-600 px-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200">You were playing with your favorite toy, but it suddenly broke! Now you feel a hot fire in your tummy. You are ANGRY!</p>
+                        <div className="flex gap-4 w-full px-6"><button onClick={() => setCurrentView('character')} className="flex-1 py-3 bg-gray-300 text-gray-700 font-bold rounded-xl">Back</button><button onClick={() => setCurrentView('menu')} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600">Next</button></div>
+                        </div>
+                    )}
+                    {currentView === 'menu' && (
+                        <div className="flex flex-col h-full">
+                        <div className="text-center mb-4"><h2 className="text-2xl font-bold text-gray-800">What will you do?</h2><p className="text-gray-500">Tap a button to see what happens.</p></div>
+                        <div className="flex bg-gray-200 p-1 rounded-2xl mb-4">
+                            <button onClick={() => { safePlay('click'); setActiveTab('negative'); }} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'negative' ? 'bg-white shadow text-red-500' : 'text-gray-500'}`}>Negative Reactions</button>
+                            <button onClick={() => { safePlay('click'); setActiveTab('coping'); }} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'coping' ? 'bg-white shadow text-green-500' : 'text-gray-500'}`}>Coping Tools</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto">
+                            {activeTab === 'negative' ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => handleReactionClick('throw')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">💥</span><span className="font-bold text-red-600">Throw</span></button>
+                                <button onClick={() => handleReactionClick('yell')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">😡</span><span className="font-bold text-red-600">Yell</span></button>
+                                <button onClick={() => handleReactionClick('meltdown')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">😭</span><span className="font-bold text-red-600">Meltdown</span></button>
+                                <button onClick={() => handleReactionClick('walkaway')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">😤</span><span className="font-bold text-red-600">Walk Away</span></button>
+                            </div>
+                            ) : (
+                            <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => handleToolClick('balloon')} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition"><span className="text-5xl mb-2">🎈</span><span className="font-bold text-green-600">Balloon Breath</span></button>
+                                <button onClick={() => handleToolClick('squeeze')} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition"><span className="text-5xl mb-2">🧸</span><span className="font-bold text-green-600">Stress Squeeze</span></button>
+                                <button onClick={() => handleToolClick('walk')} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition"><span className="text-5xl mb-2">🚶‍♂️</span><span className="font-bold text-green-600">Safe Walk</span></button>
+                                <button onClick={() => handleToolClick('count')} className="bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-200 flex flex-col items-center hover:bg-indigo-100 transition"><span className="text-5xl mb-2">🔢</span><span className="font-bold text-indigo-600">Count to 10</span></button>
+                            </div>
+                            )}
+                        </div>
+                        </div>
+                    )}
+                    {currentView.startsWith('negative_') && renderNegativeOutcome(currentView.replace('negative_', ''))}
+                    {currentView === 'tool_intro' && (
+                        <ToolIntro tool={copingTools[currentTool]} onStart={startToolSequence} onBack={() => setCurrentView('menu')} />
+                    )}
+                    {currentView === 'tool_sequence' && (<ToolSequence tool={copingTools[currentTool]} step={toolStep} onRestart={restartTool} onNext={nextToolStep} playSound={playSound}/>)}
+                    {currentView === 'reflection' && (
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
+                        <h2 className="text-3xl font-black text-green-600">Great Job!</h2><div className="relative"><div className="text-9xl animate-bounce-slow">😊</div><div className="absolute top-0 right-0 text-6xl animate-pulse">✨</div></div><div className="bg-green-50 p-6 rounded-2xl border-2 border-green-200 mx-2"><p className="text-xl text-gray-700 font-medium">You felt angry, but you used a tool to calm down. Now your brain is ready to play again!</p></div>
+                        <div className="w-full space-y-3">
+                            <button onClick={() => { safePlay('click'); setCurrentView('menu'); setActiveTab('coping'); }} className="w-full py-3 bg-white text-green-700 font-bold text-xl rounded-xl border-2 border-green-300 hover:bg-green-50">Try Another Tool</button>
+                            <button onClick={() => { safePlay('click'); setCurrentView('restart'); }} className="w-full py-4 bg-blue-500 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-blue-600 animate-pulse">Continue</button>
+                        </div>
+                        </div>
+                    )}
+                    {currentView === 'restart' && (
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
+                        <h2 className="text-2xl font-bold text-gray-800">What would you like to do?</h2><button onClick={restartApp} className="w-full max-w-xs py-4 bg-red-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-red-600 transform hover:scale-105 transition">Restart ANGRY 😡</button><button onClick={handleExit} className="w-full max-w-xs py-4 bg-purple-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-purple-600 transform hover:scale-105 transition opacity-90">Exit / All Done 👋</button>
+                        </div>
+                    )}
+                    {currentView === 'goodbye' && (
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
+                        <div className="text-9xl animate-bounce">👋</div><h2 className="text-3xl font-black text-blue-500">See you next time!</h2>
+                        <p className="text-xl text-gray-600 font-medium">Remember to take deep breaths.</p>
+                        <button onClick={restartApp} className="mt-8 px-8 py-3 bg-green-500 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-600">Start Over</button>
+                        </div>
+                    )}
+                    {currentView === 'session_ended' && (
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-slate-900 text-white animate-fadeIn absolute inset-0 z-50">
+                        <div className="text-8xl mb-4 grayscale opacity-80">🌙</div><h2 className="text-3xl font-bold text-blue-200">Goodnight!</h2>
+                        <p className="text-xl text-gray-400">The Brave Feelings Lab is closed for now.</p>
+                        <button onClick={restartApp} className="mt-12 px-8 py-3 border-2 border-gray-600 text-gray-400 font-bold rounded-full hover:bg-gray-800 hover:text-white transition flex items-center gap-2"><span>🔌</span> Turn On</button>
+                        </div>
+                    )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
 </html>
