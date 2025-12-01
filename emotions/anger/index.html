@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
+        /* ANIMATIONS */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -89,7 +90,6 @@
                     step++;
                 }, stepTime * 1000);
             },
-            // (Simplified placeholders)
             playChandelier: function() {}, playHappy: function() {}, playAnthem: function() {}, playDontSpeak: function() {}, playJW: function() {}, playGoodNews: function() {}, playSun: function() {},
             playClick: function() { this.playTone(800, 'sine', 0.1, 0.1); },
             playStart: function() { this.playTone(400, 'triangle', 0.3, 0.1); }, 
@@ -103,30 +103,42 @@
             playBreathOut: function() { this.playNoise(1.5, 0.05); }
         };
 
-        // --- THE RED ANGRY BLOCK CHARACTER (Matching your uploaded image) ---
+        // --- COMPONENTS (DEFINED BEFORE USE) ---
+
+        // RED ANGRY KID BLOCK (SVG)
+        // Matching the style of image_76e31d.png but slightly "cuter" for kids
         const RedAngryBlockSVG = () => (
-            <svg viewBox="0 0 200 200" className="w-64 h-64 animate-shake origin-bottom">
+            <svg viewBox="0 0 200 220" className="w-64 h-64 animate-shake origin-bottom">
                 {/* Main Head: Red Rounded Square */}
-                <rect x="40" y="40" width="120" height="120" rx="25" fill="#EF4444" stroke="#B91C1C" strokeWidth="4" />
+                <rect x="45" y="45" width="110" height="110" rx="25" fill="#EF4444" stroke="#B91C1C" strokeWidth="4" />
                 
+                {/* Gradient Highlight */}
+                <defs>
+                  <radialGradient id="shine" cx="30%" cy="30%" r="50%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="white" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+                <rect x="45" y="45" width="110" height="110" rx="25" fill="url(#shine)" />
+
                 {/* Eyebrows: Thick, Angled Down */}
-                <path d="M50,70 L85,85" stroke="#7F1D1D" strokeWidth="8" strokeLinecap="round" />
-                <path d="M150,70 L115,85" stroke="#7F1D1D" strokeWidth="8" strokeLinecap="round" />
+                <path d="M55,75 L85,85" stroke="#7F1D1D" strokeWidth="7" strokeLinecap="round" />
+                <path d="M145,75 L115,85" stroke="#7F1D1D" strokeWidth="7" strokeLinecap="round" />
                 
-                {/* Eyes: White Circles with Small Pupils */}
-                <circle cx="70" cy="90" r="14" fill="white" stroke="#B91C1C" strokeWidth="2" />
-                <circle cx="130" cy="90" r="14" fill="white" stroke="#B91C1C" strokeWidth="2" />
-                <circle cx="70" cy="90" r="5" fill="black" />
-                <circle cx="130" cy="90" r="5" fill="black" />
+                {/* Eyes: Large White Circles with Pupils */}
+                <circle cx="70" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
+                <circle cx="130" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
+                <circle cx="72" cy="95" r="4" fill="black" /> {/* Pupil Looking Right */}
+                <circle cx="128" cy="95" r="4" fill="black" /> {/* Pupil Looking Left */}
                 
-                {/* Mouth: Large Screaming Rectangle with Teeth */}
-                <rect x="60" y="115" width="80" height="35" rx="10" fill="#7F1D1D" />
-                <path d="M60,132 H140" stroke="white" strokeWidth="2" /> {/* Horizontal teeth line */}
-                <path d="M70,115 V150 M85,115 V150 M100,115 V150 M115,115 V150 M130,115 V150" stroke="white" strokeWidth="2" /> {/* Vertical teeth lines */}
+                {/* Mouth: Screaming Rectangle */}
+                <rect x="65" y="120" width="70" height="25" rx="8" fill="#7F1D1D" />
+                {/* Teeth */}
+                <path d="M65,128 H135" stroke="white" strokeWidth="2" opacity="0.8" /> 
                 
                 {/* Steam Effects */}
-                <path d="M30,50 Q10,30 40,20" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-left" opacity="0.8" />
-                <path d="M170,50 Q190,30 160,20" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-right" opacity="0.8" />
+                <path d="M35,55 Q15,35 45,25" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-left" opacity="0.8" />
+                <path d="M165,55 Q185,35 155,25" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-right" opacity="0.8" />
             </svg>
         );
 
@@ -198,6 +210,38 @@
             );
         };
 
+        const Reflection = ({ onTryAnother, onContinue }) => (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
+                <h2 className="text-3xl font-black text-green-600">Great Job!</h2><div className="relative"><div className="text-9xl animate-bounce-slow">😊</div><div className="absolute top-0 right-0 text-6xl animate-pulse">✨</div></div><div className="bg-green-50 p-6 rounded-2xl border-2 border-green-200 mx-2"><p className="text-xl text-gray-700 font-medium">You felt angry, but you used a tool to calm down. Now your brain is ready to play again!</p></div>
+                <div className="w-full space-y-3">
+                    <button onClick={onTryAnother} className="w-full py-3 bg-white text-green-700 font-bold text-xl rounded-xl border-2 border-green-300 hover:bg-green-50">Try Another Tool</button>
+                    <button onClick={onContinue} className="w-full py-4 bg-blue-500 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-blue-600 animate-pulse">Continue</button>
+                </div>
+            </div>
+        );
+
+        const Restart = ({ onRestart, onExit }) => (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
+                <h2 className="text-2xl font-bold text-gray-800">What would you like to do?</h2><button onClick={onRestart} className="w-full max-w-xs py-4 bg-red-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-red-600 transform hover:scale-105 transition">Restart ANGRY 😡</button><button onClick={onExit} className="w-full max-w-xs py-4 bg-purple-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-purple-600 transform hover:scale-105 transition opacity-90">Exit / All Done 👋</button>
+            </div>
+        );
+        
+        const Goodbye = ({ onRestart }) => (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
+                <div className="text-9xl animate-bounce">👋</div><h2 className="text-3xl font-black text-blue-500">See you next time!</h2>
+                <p className="text-xl text-gray-600 font-medium">Remember to take deep breaths.</p>
+                <button onClick={onRestart} className="mt-8 px-8 py-3 bg-green-500 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-600">Start Over</button>
+            </div>
+        );
+        
+        const SessionEnded = ({ onRestart }) => (
+             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-slate-900 text-white animate-fadeIn absolute inset-0 z-50">
+                <div className="text-8xl mb-4 grayscale opacity-80">🌙</div><h2 className="text-3xl font-bold text-blue-200">Goodnight!</h2>
+                <p className="text-xl text-gray-400">The Brave Feelings Lab is closed for now.</p>
+                <button onClick={onRestart} className="mt-12 px-8 py-3 border-2 border-gray-600 text-gray-400 font-bold rounded-full hover:bg-gray-800 hover:text-white transition flex items-center gap-2"><span>🔌</span> Turn On</button>
+            </div>
+        );
+
         // --- MAIN APP ---
         const App = () => {
             const [currentView, setCurrentView] = useState('welcome');
@@ -235,7 +279,7 @@
                 count: { 
                     id: 'count', name: 'Count to 10',
                     intro: { emoji: '🔢', title: 'Count to 10', desc: 'Slow down your brain by counting slowly to ten.', science: 'Counting requires focus and concentration. This distracts your brain from angry thoughts and gives your impulse control center time to catch up.', bgColor: 'bg-indigo-50', btnColor: 'bg-indigo-500' },
-                    steps: [ { emoji: '1️⃣ 2️⃣ 3️⃣', text: 'Close your eyes. Start counting slowly. One... Two... Three...', sound: 'click' }, { emoji: '4️⃣ 5️⃣ 6️⃣', text: 'Keep going. Take a breath. Four... Five... Six...', sound: 'click' }, { emoji: '7️⃣ 8️⃣ 9️⃣ 🔟', text: 'Almost there! Seven... Eight... Nine... Ten! Open your eyes.', sound: 'success' } ]
+                    steps: [ { emoji: '1️⃣ 2️⃣ 3️⃣', text: 'Close your eyes. Start counting slowly. One... Two... Three...', sound: 'click' }, { emoji: '4️⃣ 5️⃣ 6️⃣', text: 'Keep going. Take a breath between each number. Four... Five... Six...', sound: 'click' }, { emoji: '7️⃣ 8️⃣ 9️⃣ 🔟', text: 'Almost there! Seven... Eight... Nine... Ten! Open your eyes.', sound: 'success' } ]
                 }
             };
 
@@ -274,6 +318,7 @@
                 return labels[musicStyle] || 'Music';
             };
 
+            // Logic
             const handleStart = () => { safePlay('start'); setCurrentView('character'); };
             const handleRestartApp = () => { safePlay('start'); setCurrentView('welcome'); setCharacter('boy'); setActiveTab('negative'); setCurrentTool(null); setToolStep(1); };
             const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };
