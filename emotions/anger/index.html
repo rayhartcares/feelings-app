@@ -263,7 +263,6 @@
             }, [soundEnabled, musicStyle]);
 
             const safePlay = (key) => playSound(key);
-
             const cycleMusic = () => {
                 const styles = ['chandelier', 'happy', 'anthem', 'dontspeak', 'jw', 'goodnews', 'sun', 'titanic'];
                 const nextIndex = (styles.indexOf(musicStyle) + 1) % styles.length;
@@ -275,7 +274,6 @@
                 return labels[musicStyle] || 'Music';
             };
 
-            // Logic
             const handleStart = () => { safePlay('start'); setCurrentView('character'); };
             const handleRestartApp = () => { safePlay('start'); setCurrentView('welcome'); setCharacter('boy'); setActiveTab('negative'); setCurrentTool(null); setToolStep(1); };
             const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };
