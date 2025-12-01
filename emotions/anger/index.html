@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brave Feelings Lab - ANGRY</title>
+    
+    <!-- Load Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
@@ -15,8 +18,6 @@
         .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .animate-shake { animation: shake 0.5s infinite; }
-        @keyframes pulse-fast { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
-        .animate-pulse-fast { animation: pulse-fast 0.3s infinite; }
         @keyframes steam { 0% { opacity: 0; transform: translateY(5px) scale(0.5); } 50% { opacity: 0.8; transform: translateY(-10px) scale(1); } 100% { opacity: 0; transform: translateY(-25px) scale(1.5); } }
         .animate-steam-left { animation: steam 0.8s infinite linear; }
         .animate-steam-right { animation: steam 0.8s infinite linear reverse; }
@@ -29,7 +30,9 @@
     </style>
 </head>
 <body class="bg-sky-100 min-h-screen flex items-center justify-center font-sans">
+
     <div id="root"></div>
+
     <script type="text/babel">
         const { useState, useEffect, useCallback } = React;
 
@@ -86,6 +89,7 @@
                     step++;
                 }, stepTime * 1000);
             },
+            // (Simplified placeholders)
             playChandelier: function() {}, playHappy: function() {}, playAnthem: function() {}, playDontSpeak: function() {}, playJW: function() {}, playGoodNews: function() {}, playSun: function() {},
             playClick: function() { this.playTone(800, 'sine', 0.1, 0.1); },
             playStart: function() { this.playTone(400, 'triangle', 0.3, 0.1); }, 
@@ -99,95 +103,35 @@
             playBreathOut: function() { this.playNoise(1.5, 0.05); }
         };
 
-        // --- COMPONENTS ---
-
-        const FuriousKidSVG = () => (
-            <svg viewBox="0 0 200 220" className="w-64 h-64 animate-shake origin-bottom">
-                <path d="M100,10 L115,35 L140,25 L130,50 L155,60 L130,75 L145,100 L120,100 L120,130 L100,110 L80,130 L80,100 L55,100 L70,75 L45,60 L70,50 L60,25 L85,35 Z" fill="#FFEBEE" stroke="#FFCDD2" strokeWidth="2" className="animate-pulse-fast" opacity="0.5" />
-                <path d="M70,180 Q100,185 130,180 V220 H70 Z" fill="#42A5F5" stroke="#1976D2" strokeWidth="2" />
-                <path d="M70,180 Q100,185 130,180" fill="none" stroke="#1E88E5" strokeWidth="2" /> 
-                <ellipse cx="100" cy="110" rx="75" ry="70" fill="#FFCCBC" stroke="#E64A19" strokeWidth="2" />
-                <defs><radialGradient id="kidFlush" cx="50%" cy="60%" r="40%"><stop offset="0%" stopColor="#FF5252" stopOpacity="0.5" /><stop offset="100%" stopColor="#FFCCBC" stopOpacity="0" /></radialGradient></defs>
-                <ellipse cx="100" cy="110" rx="65" ry="60" fill="url(#kidFlush)" />
-                <circle cx="28" cy="115" r="12" fill="#FFCCBC" stroke="#E64A19" strokeWidth="2" />
-                <circle cx="172" cy="115" r="12" fill="#FFCCBC" stroke="#E64A19" strokeWidth="2" />
-                <path d="M30,90 Q20,50 50,40 Q80,20 100,30 Q130,20 160,40 Q180,50 170,90 Q160,60 130,50 Q100,40 70,50 Q40,60 30,90" fill="#5D4037" stroke="#3E2723" strokeWidth="2" />
-                <path d="M60,100 L85,115" stroke="#3E2723" strokeWidth="5" strokeLinecap="round" />
-                <path d="M140,100 L115,115" stroke="#3E2723" strokeWidth="5" strokeLinecap="round" />
-                <circle cx="75" cy="125" r="14" fill="white" stroke="#3E2723" strokeWidth="2" />
-                <circle cx="125" cy="125" r="14" fill="white" stroke="#3E2723" strokeWidth="2" />
-                <circle cx="80" cy="125" r="5" fill="#3E2723" /> 
-                <circle cx="120" cy="125" r="5" fill="#3E2723" /> 
-                <path d="M80,150 Q100,175 120,150 Q120,140 100,140 Q80,140 80,150 Z" fill="#B71C1C" stroke="#3E2723" strokeWidth="2" />
-                <path d="M90,160 Q100,165 110,160" fill="none" stroke="#E57373" strokeWidth="3" strokeLinecap="round" />
-                <circle cx="50" cy="135" r="5" fill="#4FC3F7" className="animate-ping" />
-                <circle cx="150" cy="135" r="5" fill="#4FC3F7" className="animate-ping" style={{animationDelay: '0.3s'}} />
-                <path d="M30,70 Q10,50 40,40" fill="none" stroke="#CFD8DC" strokeWidth="3" className="animate-steam-left" opacity="0.7" />
-                <path d="M170,70 Q190,50 160,40" fill="none" stroke="#CFD8DC" strokeWidth="3" className="animate-steam-right" opacity="0.7" />
+        // --- THE RED ANGRY BLOCK CHARACTER (Matching your uploaded image) ---
+        const RedAngryBlockSVG = () => (
+            <svg viewBox="0 0 200 200" className="w-64 h-64 animate-shake origin-bottom">
+                {/* Main Head: Red Rounded Square */}
+                <rect x="40" y="40" width="120" height="120" rx="25" fill="#EF4444" stroke="#B91C1C" strokeWidth="4" />
+                
+                {/* Eyebrows: Thick, Angled Down */}
+                <path d="M50,70 L85,85" stroke="#7F1D1D" strokeWidth="8" strokeLinecap="round" />
+                <path d="M150,70 L115,85" stroke="#7F1D1D" strokeWidth="8" strokeLinecap="round" />
+                
+                {/* Eyes: White Circles with Small Pupils */}
+                <circle cx="70" cy="90" r="14" fill="white" stroke="#B91C1C" strokeWidth="2" />
+                <circle cx="130" cy="90" r="14" fill="white" stroke="#B91C1C" strokeWidth="2" />
+                <circle cx="70" cy="90" r="5" fill="black" />
+                <circle cx="130" cy="90" r="5" fill="black" />
+                
+                {/* Mouth: Large Screaming Rectangle with Teeth */}
+                <rect x="60" y="115" width="80" height="35" rx="10" fill="#7F1D1D" />
+                <path d="M60,132 H140" stroke="white" strokeWidth="2" /> {/* Horizontal teeth line */}
+                <path d="M70,115 V150 M85,115 V150 M100,115 V150 M115,115 V150 M130,115 V150" stroke="white" strokeWidth="2" /> {/* Vertical teeth lines */}
+                
+                {/* Steam Effects */}
+                <path d="M30,50 Q10,30 40,20" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-left" opacity="0.8" />
+                <path d="M170,50 Q190,30 160,20" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-right" opacity="0.8" />
             </svg>
         );
 
-        const WelcomeScreen = ({ onStart }) => (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-fadeIn">
-                <div className="space-y-2"><h1 className="text-4xl font-black text-red-500 tracking-wider">Brave Feelings Lab</h1><h2 className="text-2xl font-bold text-red-400">Emotion Navigator – ANGRY</h2></div>
-                <FuriousKidSVG />
-                <button onClick={onStart} className="px-10 py-4 bg-red-500 text-white text-2xl font-bold rounded-full shadow-lg hover:bg-red-600 hover:scale-105 transition-all transform border-b-8 border-red-700 active:border-b-0 active:translate-y-2">START</button>
-            </div>
-        );
-
-        const CharacterSelection = ({ onSelect }) => (
-            <div className="flex flex-col items-center h-full text-center space-y-8 p-4">
-                <h2 className="text-3xl font-bold text-gray-700">Who is playing today?</h2>
-                <div className="flex justify-center gap-8 w-full">
-                    <div className="flex flex-col items-center space-y-4"><div className="text-8xl bg-blue-100 p-6 rounded-3xl border-4 border-blue-300">👦</div><button onClick={() => onSelect('boy')} className="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-md hover:bg-blue-600 transition">Use Boy</button></div>
-                    <div className="flex flex-col items-center space-y-4"><div className="text-8xl bg-pink-100 p-6 rounded-3xl border-4 border-pink-300">👧</div><button onClick={() => onSelect('girl')} className="px-6 py-3 bg-pink-500 text-white font-bold rounded-xl shadow-md hover:bg-pink-600 transition">Use Girl</button></div>
-                </div>
-            </div>
-        );
-
-        const TriggerScene = ({ onNext, onBack }) => (
-            <div className="flex flex-col items-center h-full text-center justify-between py-6">
-                <h2 className="text-2xl font-bold text-gray-700">Uh Oh! Something happened!</h2>
-                <div className="bg-white p-8 rounded-3xl shadow-xl border-4 border-gray-200 w-full max-w-sm"><div className="text-8xl mb-4">🧸➡️💔</div><div className="text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">⚡</div></div>
-                <p className="text-xl font-medium text-gray-600 px-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200">You were playing with your favorite toy, but it suddenly broke! Now you feel a hot fire in your tummy. You are ANGRY!</p>
-                <div className="flex gap-4 w-full px-6"><button onClick={onBack} className="flex-1 py-3 bg-gray-300 text-gray-700 font-bold rounded-xl">Back</button><button onClick={onNext} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600">Next</button></div>
-            </div>
-        );
-
-        const Menu = ({ activeTab, setActiveTab, onReactionClick, onToolClick }) => (
-            <div className="flex flex-col h-full">
-                <div className="text-center mb-4"><h2 className="text-2xl font-bold text-gray-800">What will you do?</h2><p className="text-gray-500">Tap a button to see what happens.</p></div>
-                <div className="flex bg-gray-200 p-1 rounded-2xl mb-4">
-                    <button onClick={() => setActiveTab('negative')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'negative' ? 'bg-white shadow text-red-500' : 'text-gray-500'}`}>Negative Reactions</button>
-                    <button onClick={() => setActiveTab('coping')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'coping' ? 'bg-white shadow text-green-500' : 'text-gray-500'}`}>Coping Tools</button>
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                    {activeTab === 'negative' ? (
-                    <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => onReactionClick('throw')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">💥</span><span className="font-bold text-red-600">Throw</span></button>
-                        <button onClick={() => onReactionClick('yell')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">😡</span><span className="font-bold text-red-600">Yell</span></button>
-                        <button onClick={() => onReactionClick('meltdown')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">😭</span><span className="font-bold text-red-600">Meltdown</span></button>
-                        <button onClick={() => onReactionClick('walkaway')} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition"><span className="text-5xl mb-2">😤</span><span className="font-bold text-red-600">Walk Away</span></button>
-                    </div>
-                    ) : (
-                    <div className="grid grid-cols-2 gap-4">
-                        <button onClick={() => onToolClick('balloon')} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition"><span className="text-5xl mb-2">🎈</span><span className="font-bold text-green-600">Balloon Breath</span></button>
-                        <button onClick={() => onToolClick('squeeze')} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition"><span className="text-5xl mb-2">🧸</span><span className="font-bold text-green-600">Stress Squeeze</span></button>
-                        <button onClick={() => onToolClick('walk')} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition"><span className="text-5xl mb-2">🚶‍♂️</span><span className="font-bold text-green-600">Safe Walk</span></button>
-                        <button onClick={() => onToolClick('count')} className="bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-200 flex flex-col items-center hover:bg-indigo-100 transition"><span className="text-5xl mb-2">🔢</span><span className="font-bold text-indigo-600">Count to 10</span></button>
-                    </div>
-                    )}
-                </div>
-            </div>
-        );
-
-        const ActionScene = ({ type, character, playSound }) => {
+        const ActionScene = ({ type, character }) => {
             const charEmoji = character === 'boy' ? '😠' : '😡';
-            useEffect(() => {
-                if (type === 'throw') { playSound('throw_whoosh'); setTimeout(() => playSound('throw_crash'), 800); } 
-                else if (type === 'meltdown') { playSound('meltdown'); }
-            }, [type, playSound]);
-
             if (type === 'throw') return (
                 <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-red-50 rounded-3xl">
                     <div className="text-8xl absolute left-4 bottom-4 z-10">{charEmoji}</div>
@@ -206,8 +150,8 @@
             return null;
         };
 
-        const NegativeOutcome = ({ type, character, playSound, onRetry, onCoping, data }) => {
-            const content = (data.type === 'throw' || data.type === 'meltdown') ? <ActionScene type={data.type} character={character} playSound={playSound} /> : <span className="text-8xl">{data.scene}</span>;
+        const NegativeOutcome = ({ type, character, onRetry, onCoping, data }) => {
+            const content = (data.type === 'throw' || data.type === 'meltdown') ? <ActionScene type={data.type} character={character} /> : <span className="text-8xl">{data.scene}</span>;
             return (
                 <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${data.bgColor}`}>
                     <h2 className="text-2xl font-bold text-gray-800">{data.title}</h2>
@@ -221,27 +165,19 @@
             );
         };
 
-        const ToolIntro = ({ tool, onStart, onBack }) => {
-            return (
-                <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${tool.intro.bgColor || 'bg-white'}`}>
-                <div className="w-full flex justify-start mb-2">
-                    <button onClick={onBack} className="text-gray-500 text-sm font-bold">⬅ Back</button>
-                </div>
+        const ToolIntro = ({ tool, onStart, onBack }) => (
+            <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${tool.intro.bgColor || 'bg-white'}`}>
+                <div className="w-full flex justify-start mb-2"><button onClick={onBack} className="text-gray-500 text-sm font-bold">⬅ Back</button></div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">{tool.intro.title || tool.name}</h2>
                 <div className="text-9xl mb-6 animate-bounce-slow">{tool.intro.emoji}</div>
-                <div className="bg-white/80 p-4 rounded-xl backdrop-blur-sm mb-4">
-                    <p className="text-lg font-medium text-gray-700 leading-snug">{tool.intro.desc}</p>
-                </div>
+                <div className="bg-white/80 p-4 rounded-xl backdrop-blur-sm mb-4"><p className="text-lg font-medium text-gray-700 leading-snug">{tool.intro.desc}</p></div>
                 <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100 mb-4 text-left w-full">
                     <h3 className="text-sm font-bold text-blue-600 mb-1">🔬 Why it works:</h3>
                     <p className="text-sm text-gray-600 leading-relaxed">{tool.intro.science}</p>
                 </div>
-                <button onClick={onStart} className={`w-full py-4 text-white font-bold text-xl rounded-xl shadow-lg transform transition hover:scale-105 ${tool.intro.btnColor || 'bg-blue-500'}`}>
-                    Start Tool ▶
-                </button>
-                </div>
-            );
-        };
+                <button onClick={onStart} className={`w-full py-4 text-white font-bold text-xl rounded-xl shadow-lg transform transition hover:scale-105 ${tool.intro.btnColor || 'bg-blue-500'}`}>Start Tool ▶</button>
+            </div>
+        );
 
         const ToolSequence = ({ tool, step, onRestart, onNext, playSound }) => {
             const currentStepData = tool.steps[step - 1];
@@ -249,66 +185,30 @@
             useEffect(() => { if (currentStepData && currentStepData.sound) playSound(currentStepData.sound); }, [step, currentStepData, playSound]);
             return (
                 <div className="flex flex-col h-full justify-between items-center text-center p-2">
-                <div className="w-full flex justify-between items-center mb-2">
-                    <h2 className="text-xl font-bold text-green-700">{tool.name}</h2>
-                    <span className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-bold">Step {step}/3</span>
-                </div>
-                <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden">
-                    <div className={`${isLongContent ? 'text-6xl tracking-widest' : 'text-9xl'} mb-6 transform transition-all hover:scale-110 duration-500 cursor-default`}>
-                        {currentStepData.emoji}
+                    <div className="w-full flex justify-between items-center mb-2"><h2 className="text-xl font-bold text-green-700">{tool.name}</h2><span className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-bold">Step {step}/3</span></div>
+                    <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden">
+                        <div className={`${isLongContent ? 'text-6xl tracking-widest' : 'text-9xl'} mb-6 transform transition-all hover:scale-110 duration-500 cursor-default`}>{currentStepData.emoji}</div>
+                        <p className="text-xl text-gray-700 font-medium px-4 bg-green-50 py-6 rounded-2xl w-full border border-green-100">{currentStepData.text}</p>
                     </div>
-                    <p className="text-xl text-gray-700 font-medium px-4 bg-green-50 py-6 rounded-2xl w-full border border-green-100">{currentStepData.text}</p>
-                </div>
-                <div className="w-full flex gap-3 mt-4">
-                    <button onClick={onRestart} className="flex-1 py-3 bg-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-300">Restart</button>
-                    <button onClick={onNext} className="flex-2 w-2/3 py-3 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600">{step === 3 ? 'Finish!' : 'Next Step ➡️'}</button>
-                </div>
+                    <div className="w-full flex gap-3 mt-4">
+                        <button onClick={onRestart} className="flex-1 py-3 bg-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-300">Restart</button>
+                        <button onClick={onNext} className="flex-2 w-2/3 py-3 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600">{step === 3 ? 'Finish!' : 'Next Step ➡️'}</button>
+                    </div>
                 </div>
             );
         };
 
-        const Reflection = ({ onTryAnother, onContinue }) => (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
-                <h2 className="text-3xl font-black text-green-600">Great Job!</h2><div className="relative"><div className="text-9xl animate-bounce-slow">😊</div><div className="absolute top-0 right-0 text-6xl animate-pulse">✨</div></div><div className="bg-green-50 p-6 rounded-2xl border-2 border-green-200 mx-2"><p className="text-xl text-gray-700 font-medium">You felt angry, but you used a tool to calm down. Now your brain is ready to play again!</p></div>
-                <div className="w-full space-y-3">
-                    <button onClick={onTryAnother} className="w-full py-3 bg-white text-green-700 font-bold text-xl rounded-xl border-2 border-green-300 hover:bg-green-50">Try Another Tool</button>
-                    <button onClick={onContinue} className="w-full py-4 bg-blue-500 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-blue-600 animate-pulse">Continue</button>
-                </div>
-            </div>
-        );
-
-        const Restart = ({ onRestart, onExit }) => (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
-                <h2 className="text-2xl font-bold text-gray-800">What would you like to do?</h2><button onClick={onRestart} className="w-full max-w-xs py-4 bg-red-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-red-600 transform hover:scale-105 transition">Restart ANGRY 😡</button><button onClick={onExit} className="w-full max-w-xs py-4 bg-purple-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-purple-600 transform hover:scale-105 transition opacity-90">Exit / All Done 👋</button>
-            </div>
-        );
-        
-        const Goodbye = ({ onRestart }) => (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
-                <div className="text-9xl animate-bounce">👋</div><h2 className="text-3xl font-black text-blue-500">See you next time!</h2>
-                <p className="text-xl text-gray-600 font-medium">Remember to take deep breaths.</p>
-                <button onClick={onRestart} className="mt-8 px-8 py-3 bg-green-500 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-600">Start Over</button>
-            </div>
-        );
-        
-        const SessionEnded = ({ onRestart }) => (
-             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-slate-900 text-white animate-fadeIn absolute inset-0 z-50">
-                <div className="text-8xl mb-4 grayscale opacity-80">🌙</div><h2 className="text-3xl font-bold text-blue-200">Goodnight!</h2>
-                <p className="text-xl text-gray-400">The Brave Feelings Lab is closed for now.</p>
-                <button onClick={onRestart} className="mt-12 px-8 py-3 border-2 border-gray-600 text-gray-400 font-bold rounded-full hover:bg-gray-800 hover:text-white transition flex items-center gap-2"><span>🔌</span> Turn On</button>
-            </div>
-        );
-
+        // --- MAIN APP ---
         const App = () => {
             const [currentView, setCurrentView] = useState('welcome');
             const [character, setCharacter] = useState('boy'); 
             const [activeTab, setActiveTab] = useState('negative');
             const [soundEnabled, setSoundEnabled] = useState(true);
             const [musicStyle, setMusicStyle] = useState('titanic'); 
-            
             const [currentTool, setCurrentTool] = useState(null);
             const [toolStep, setToolStep] = useState(1);
 
+            // Data
             const NEGATIVE_REACTIONS = {
                 throw: { type: 'throw', title: 'Throwing Things', scene: null, desc: 'Oh no! Throwing toys makes a big mess and might break something special.', bgColor: 'bg-red-100', btnColor: 'bg-red-500' },
                 yell: { type: 'emoji', emoji: '🗣️', title: 'Yelling Loudly', scene: '📢😫👂', desc: 'Yelling hurts people\'s ears and makes them feel sad or scared.', bgColor: 'bg-orange-100', btnColor: 'bg-orange-500' },
@@ -320,7 +220,7 @@
                 balloon: { 
                     id: 'balloon', name: 'Balloon Breathing', 
                     intro: { emoji: '🎈', title: 'Balloon Breathing', desc: 'Pretend there is a big balloon in your tummy. Let\'s fill it up with air!', science: 'Deep breathing signals your brain to calm down by activating the parasympathetic nervous system. It lowers your heart rate and helps you think clearly.', bgColor: 'bg-blue-50', btnColor: 'bg-blue-500' },
-                    steps: [ { emoji: '🎈😤', text: 'Imagine a balloon in your tummy. Take a big breath in through your nose to fill it up!', sound: 'breath_in' }, { emoji: '✋🛑', text: 'Hold that breath for 3 seconds. 1... 2... 3...', sound: null }, { emoji: '🌬️💨', text: 'Now let the air out slowly through your mouth. Whoosh!', sound: 'breath_out' } ]
+                    steps: [ { emoji: '🎈😤', text: 'Imagine a balloon in your tummy. Take a big breath in through your nose to fill it up!', sound: 'breath_in' }, { emoji: '✋🛑', text: 'Hold that breath for 3 seconds. 1... 2... 3...', sound: null }, { emoji: '🌬️💨', text: 'Now let the air out slowly. Whoosh!', sound: 'breath_out' } ]
                 },
                 squeeze: { 
                     id: 'squeeze', name: 'Stress Squeeze',
@@ -335,7 +235,7 @@
                 count: { 
                     id: 'count', name: 'Count to 10',
                     intro: { emoji: '🔢', title: 'Count to 10', desc: 'Slow down your brain by counting slowly to ten.', science: 'Counting requires focus and concentration. This distracts your brain from angry thoughts and gives your impulse control center time to catch up.', bgColor: 'bg-indigo-50', btnColor: 'bg-indigo-500' },
-                    steps: [ { emoji: '1️⃣ 2️⃣ 3️⃣', text: 'Close your eyes. Start counting slowly. One... Two... Three...', sound: 'click' }, { emoji: '4️⃣ 5️⃣ 6️⃣', text: 'Keep going. Take a breath between each number. Four... Five... Six...', sound: 'click' }, { emoji: '7️⃣ 8️⃣ 9️⃣ 🔟', text: 'Almost there! Seven... Eight... Nine... Ten! Open your eyes.', sound: 'success' } ]
+                    steps: [ { emoji: '1️⃣ 2️⃣ 3️⃣', text: 'Close your eyes. Start counting slowly. One... Two... Three...', sound: 'click' }, { emoji: '4️⃣ 5️⃣ 6️⃣', text: 'Keep going. Take a breath. Four... Five... Six...', sound: 'click' }, { emoji: '7️⃣ 8️⃣ 9️⃣ 🔟', text: 'Almost there! Seven... Eight... Nine... Ten! Open your eyes.', sound: 'success' } ]
                 }
             };
 
@@ -363,36 +263,30 @@
             }, [soundEnabled, musicStyle]);
 
             const safePlay = (key) => playSound(key);
-            
+
             const cycleMusic = () => {
                 const styles = ['chandelier', 'happy', 'anthem', 'dontspeak', 'jw', 'goodnews', 'sun', 'titanic'];
                 const nextIndex = (styles.indexOf(musicStyle) + 1) % styles.length;
-                const nextStyle = styles[nextIndex];
-                setMusicStyle(nextStyle);
-                if (soundEnabled && SoundEngine.ctx && SoundEngine.ctx.state !== 'suspended') SoundEngine.playMusic(nextStyle);
+                setMusicStyle(styles[nextIndex]);
+                if (soundEnabled && SoundEngine.ctx && SoundEngine.ctx.state !== 'suspended') SoundEngine.playMusic(styles[nextIndex]);
             };
             const getMusicLabel = () => {
                 const labels = { chandelier: 'Pop 🎤', happy: 'Happy ☀️', anthem: 'Anthem 🥁', dontspeak: 'Sad 🎸', jw: 'Acoustic 📖', goodnews: 'Epic 🎻', sun: 'Sun ☀️', titanic: 'Titanic 🚢' };
                 return labels[musicStyle] || 'Music';
             };
 
-            // --- VIEW LOGIC ---
+            // Logic
             const handleStart = () => { safePlay('start'); setCurrentView('character'); };
-            const handleSelectCharacter = (char) => { safePlay('click'); setCharacter(char); setCurrentView('trigger'); };
-            const handleNextToMenu = () => { safePlay('click'); setCurrentView('menu'); };
-            const handleReactionClick = (key) => { 
-                if(key === 'yell') safePlay('yell'); if(key === 'walkaway') safePlay('walkaway');
-                setCurrentView(`negative_${key}`); 
-            };
-            const handleToolClick = (key) => { safePlay('click'); setCurrentTool(key); setToolStep(1); setCurrentView('tool_intro'); };
-            const startToolSequence = () => { safePlay('click'); setCurrentView('tool_sequence'); };
-            const nextToolStep = () => { if (toolStep < 3) { setToolStep(prev => prev + 1); } else { safePlay('success'); setCurrentView('reflection'); } };
-            const restartTool = () => { safePlay('click'); setToolStep(1); };
             const handleRestartApp = () => { safePlay('start'); setCurrentView('welcome'); setCharacter('boy'); setActiveTab('negative'); setCurrentTool(null); setToolStep(1); };
             const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };
             const handleTryAnotherTool = () => { safePlay('click'); setCurrentView('menu'); setActiveTab('coping'); };
             const handleContinue = () => { safePlay('click'); setCurrentView('restart'); };
-            
+            const handleReactionClick = (key) => { if(key === 'yell') safePlay('yell'); if(key === 'walkaway') safePlay('walkaway'); setCurrentView(`negative_${key}`); };
+            const handleToolClick = (key) => { safePlay('click'); setCurrentTool(key); setToolStep(1); setCurrentView('tool_intro'); };
+            const startToolSequence = () => { safePlay('click'); setCurrentView('tool_sequence'); };
+            const nextToolStep = () => { if (toolStep < 3) { setToolStep(prev => prev + 1); } else { safePlay('success'); setCurrentView('reflection'); } };
+            const restartTool = () => { safePlay('click'); setToolStep(1); };
+            const selectCharacter = (char) => { safePlay('click'); setCharacter(char); setCurrentView('trigger'); };
             const goBack = () => {
                 safePlay('click');
                 if (currentView === 'character') setCurrentView('welcome');
@@ -405,7 +299,6 @@
                 else if (currentView === 'restart') setCurrentView('reflection');
                 else if (currentView === 'goodbye') setCurrentView('welcome');
             };
-            
             const toggleSound = () => {
                 const newState = !soundEnabled; setSoundEnabled(newState);
                 if (newState) {
@@ -417,32 +310,114 @@
             return (
                 <div className="w-full max-w-md h-[800px] max-h-[90vh] bg-white rounded-[40px] shadow-2xl overflow-hidden border-8 border-white ring-4 ring-sky-200 relative">
                     {currentView !== 'session_ended' && (
-                    <div className="bg-slate-100 p-3 flex items-center justify-between border-b border-gray-200">
-                        <div className="flex gap-2 w-32">
-                        {currentView !== 'welcome' && currentView !== 'goodbye' && (<><button onClick={goBack} className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1">⬅️ Back</button><button onClick={handleRestartApp} className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1">🏠 Home</button></>)}
+                        <div className="bg-slate-100 p-3 flex items-center justify-between border-b border-gray-200">
+                            <div className="flex gap-2 w-32">
+                                {currentView !== 'welcome' && currentView !== 'goodbye' && (<><button onClick={goBack} className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1">⬅️ Back</button><button onClick={handleRestartApp} className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1">🏠 Home</button></>)}
+                            </div>
+                            <div className="flex flex-col items-center"><span className="font-bold text-gray-400 text-xs truncate hidden sm:block">Brave Feelings Lab</span>
+                            <button onClick={cycleMusic} className="mt-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-full hover:bg-blue-100 transition border border-blue-200">🎵 {getMusicLabel()}</button>
+                            </div>
+                            <div className="w-32 flex justify-end gap-2">
+                                <button onClick={toggleSound} className={`px-3 py-1 rounded-full shadow-sm font-bold text-sm transition ${soundEnabled ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-gray-200 text-gray-400'}`}>{soundEnabled ? '🔊' : '🔇'}</button>
+                                {currentView !== 'welcome' && currentView !== 'goodbye' && (<button onClick={handleExit} className="px-3 py-1 bg-red-100 text-red-600 rounded-full shadow-sm font-bold text-sm hover:bg-red-200 transition">Exit ❌</button>)}
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center"><span className="font-bold text-gray-400 text-xs truncate hidden sm:block">Brave Feelings Lab</span>
-                        <button onClick={cycleMusic} className="mt-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-full hover:bg-blue-100 transition border border-blue-200">🎵 {getMusicLabel()}</button>
-                        </div>
-                        <div className="w-32 flex justify-end gap-2">
-                        <button onClick={toggleSound} className={`px-3 py-1 rounded-full shadow-sm font-bold text-sm transition ${soundEnabled ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-gray-200 text-gray-400'}`}>{soundEnabled ? '🔊' : '🔇'}</button>
-                        {currentView !== 'welcome' && currentView !== 'goodbye' && (<button onClick={handleExit} className="px-3 py-1 bg-red-100 text-red-600 rounded-full shadow-sm font-bold text-sm hover:bg-red-200 transition">Exit ❌</button>)}
-                        </div>
-                    </div>
                     )}
-                    
+
                     <div className="h-full p-6 pb-20 overflow-y-auto relative">
-                        {currentView === 'welcome' && <WelcomeScreen onStart={handleStart} />}
-                        {currentView === 'character' && <CharacterSelection onSelect={handleSelectCharacter} />}
-                        {currentView === 'trigger' && <TriggerScene onNext={handleNextToMenu} onBack={goBack} />}
-                        {currentView === 'menu' && <Menu activeTab={activeTab} setActiveTab={setActiveTab} onReactionClick={handleReactionClick} onToolClick={handleToolClick} />}
+                        {currentView === 'welcome' && (
+                            <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-fadeIn">
+                                <div className="space-y-2"><h1 className="text-4xl font-black text-red-500 tracking-wider">Brave Feelings Lab</h1><h2 className="text-2xl font-bold text-red-400">Emotion Navigator – ANGRY</h2></div>
+                                <RedAngryBlockSVG />
+                                <button onClick={handleStart} className="px-10 py-4 bg-red-500 text-white text-2xl font-bold rounded-full shadow-lg hover:bg-red-600 hover:scale-105 transition-all transform border-b-8 border-red-700 active:border-b-0 active:translate-y-2">START</button>
+                            </div>
+                        )}
+                        
+                        {currentView === 'character' && (
+                            <div className="flex flex-col items-center h-full text-center space-y-8 p-4">
+                                <h2 className="text-3xl font-bold text-gray-700">Who is playing today?</h2>
+                                <div className="flex justify-center gap-8 w-full">
+                                    <div className="flex flex-col items-center space-y-4"><div className="text-8xl bg-blue-100 p-6 rounded-3xl border-4 border-blue-300">👦</div><button onClick={() => { safePlay('click'); setCharacter('boy'); setCurrentView('trigger'); }} className="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-md hover:bg-blue-600 transition">Use Boy</button></div>
+                                    <div className="flex flex-col items-center space-y-4"><div className="text-8xl bg-pink-100 p-6 rounded-3xl border-4 border-pink-300">👧</div><button onClick={() => { safePlay('click'); setCharacter('girl'); setCurrentView('trigger'); }} className="px-6 py-3 bg-pink-500 text-white font-bold rounded-xl shadow-md hover:bg-pink-600 transition">Use Girl</button></div>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentView === 'trigger' && (
+                            <div className="flex flex-col items-center h-full text-center justify-between py-6">
+                                <h2 className="text-2xl font-bold text-gray-700">Uh Oh! Something happened!</h2>
+                                <div className="bg-white p-8 rounded-3xl shadow-xl border-4 border-gray-200 w-full max-w-sm"><div className="text-8xl mb-4">🧸➡️💔</div><div className="text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">⚡</div></div>
+                                <p className="text-xl font-medium text-gray-600 px-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200">You were playing with your favorite toy, but it suddenly broke! Now you feel a hot fire in your tummy. You are ANGRY!</p>
+                                <div className="flex gap-4 w-full px-6"><button onClick={goBack} className="flex-1 py-3 bg-gray-300 text-gray-700 font-bold rounded-xl">Back</button><button onClick={() => { safePlay('click'); setCurrentView('menu'); }} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600">Next</button></div>
+                            </div>
+                        )}
+
+                        {currentView === 'menu' && (
+                            <div className="flex flex-col h-full">
+                                <div className="text-center mb-4"><h2 className="text-2xl font-bold text-gray-800">What will you do?</h2><p className="text-gray-500">Tap a button to see what happens.</p></div>
+                                <div className="flex bg-gray-200 p-1 rounded-2xl mb-4">
+                                    <button onClick={() => { safePlay('click'); setActiveTab('negative'); }} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'negative' ? 'bg-white shadow text-red-500' : 'text-gray-500'}`}>Negative Reactions</button>
+                                    <button onClick={() => { safePlay('click'); setActiveTab('coping'); }} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'coping' ? 'bg-white shadow text-green-500' : 'text-gray-500'}`}>Coping Tools</button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto">
+                                    {activeTab === 'negative' ? (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {Object.entries(NEGATIVE_REACTIONS).map(([key, val]) => (
+                                                <button key={key} onClick={() => handleReactionClick(key)} className="bg-red-50 p-4 rounded-2xl border-2 border-red-200 flex flex-col items-center hover:bg-red-100 transition">
+                                                    <span className="text-5xl mb-2">{val.emoji || '💥'}</span><span className="font-bold text-red-600">{val.title}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {Object.entries(COPING_TOOLS).map(([key, val]) => (
+                                                <button key={key} onClick={() => handleToolClick(key)} className="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col items-center hover:bg-green-100 transition">
+                                                    <span className="text-5xl mb-2">{val.intro.emoji}</span><span className="font-bold text-green-600">{val.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                        
                         {currentView.startsWith('negative_') && <NegativeOutcome type={currentView.replace('negative_', '')} character={character} playSound={safePlay} onRetry={() => setCurrentView('menu')} onCoping={() => { safePlay('success'); setActiveTab('coping'); setCurrentView('menu'); }} data={NEGATIVE_REACTIONS[currentView.replace('negative_', '')]} />}
+
                         {currentView === 'tool_intro' && <ToolIntro tool={COPING_TOOLS[currentTool]} onStart={startToolSequence} onBack={() => setCurrentView('menu')} />}
+                        
                         {currentView === 'tool_sequence' && <ToolSequence tool={COPING_TOOLS[currentTool]} step={toolStep} onRestart={restartTool} onNext={nextToolStep} playSound={playSound} />}
-                        {currentView === 'reflection' && <Reflection onTryAnother={handleTryAnotherTool} onContinue={handleContinue} />}
-                        {currentView === 'restart' && <Restart onRestart={handleRestartApp} onExit={handleExit} />}
-                        {currentView === 'goodbye' && <Goodbye onRestart={handleRestartApp} />}
-                        {currentView === 'session_ended' && <SessionEnded onRestart={handleRestartApp} />}
+
+                        {currentView === 'reflection' && (
+                            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
+                                <h2 className="text-3xl font-black text-green-600">Great Job!</h2><div className="relative"><div className="text-9xl animate-bounce-slow">😊</div><div className="absolute top-0 right-0 text-6xl animate-pulse">✨</div></div><div className="bg-green-50 p-6 rounded-2xl border-2 border-green-200 mx-2"><p className="text-xl text-gray-700 font-medium">You felt angry, but you used a tool to calm down. Now your brain is ready to play again!</p></div>
+                                <div className="w-full space-y-3">
+                                    <button onClick={handleTryAnotherTool} className="w-full py-3 bg-white text-green-700 font-bold text-xl rounded-xl border-2 border-green-300 hover:bg-green-50">Try Another Tool</button>
+                                    <button onClick={handleContinue} className="w-full py-4 bg-blue-500 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-blue-600 animate-pulse">Continue</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentView === 'restart' && (
+                            <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
+                                <h2 className="text-2xl font-bold text-gray-800">What would you like to do?</h2><button onClick={handleRestartApp} className="w-full max-w-xs py-4 bg-red-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-red-600 transform hover:scale-105 transition">Restart ANGRY 😡</button><button onClick={handleExit} className="w-full max-w-xs py-4 bg-purple-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-purple-600 transform hover:scale-105 transition opacity-90">Exit / All Done 👋</button>
+                            </div>
+                        )}
+
+                        {currentView === 'goodbye' && (
+                            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
+                                <div className="text-9xl animate-bounce">👋</div><h2 className="text-3xl font-black text-blue-500">See you next time!</h2>
+                                <p className="text-xl text-gray-600 font-medium">Remember to take deep breaths.</p>
+                                <button onClick={handleRestartApp} className="mt-8 px-8 py-3 bg-green-500 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-600">Start Over</button>
+                            </div>
+                        )}
+
+                        {currentView === 'session_ended' && (
+                             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-slate-900 text-white animate-fadeIn absolute inset-0 z-50">
+                                <div className="text-8xl mb-4 grayscale opacity-80">🌙</div><h2 className="text-3xl font-bold text-blue-200">Goodnight!</h2>
+                                <p className="text-xl text-gray-400">The Brave Feelings Lab is closed for now.</p>
+                                <button onClick={handleRestartApp} className="mt-12 px-8 py-3 border-2 border-gray-600 text-gray-400 font-bold rounded-full hover:bg-gray-800 hover:text-white transition flex items-center gap-2"><span>🔌</span> Turn On</button>
+                            </div>
+                        )}
                     </div>
                 </div>
             );
