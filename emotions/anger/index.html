@@ -12,65 +12,21 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        /* Animation Keyframes */
+        /* ANIMATIONS */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-        
-        @keyframes bounce-slow { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-10px); } 
-        }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
-        
-        @keyframes shake {
-          0% { transform: translate(1px, 1px) rotate(0deg); }
-          10% { transform: translate(-1px, -2px) rotate(-1deg); }
-          20% { transform: translate(-3px, 0px) rotate(1deg); }
-          30% { transform: translate(3px, 2px) rotate(0deg); }
-          40% { transform: translate(1px, -1px) rotate(1deg); }
-          50% { transform: translate(-1px, 2px) rotate(-1deg); }
-          60% { transform: translate(-3px, 1px) rotate(0deg); }
-          70% { transform: translate(3px, 1px) rotate(-1deg); }
-          80% { transform: translate(-1px, -1px) rotate(1deg); }
-          90% { transform: translate(1px, 2px) rotate(0deg); }
-          100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .animate-shake { animation: shake 0.5s infinite; }
-        
-        @keyframes pulse-fast { 
-            0%, 100% { transform: scale(1); opacity: 0.8; } 
-            50% { transform: scale(1.05); opacity: 1; } 
-        }
-        .animate-pulse-fast { animation: pulse-fast 0.3s infinite; }
-        
-        @keyframes steam {
-          0% { opacity: 0; transform: translateY(5px) scale(0.5); }
-          50% { opacity: 0.8; transform: translateY(-10px) scale(1); }
-          100% { opacity: 0; transform: translateY(-25px) scale(1.5); }
-        }
+        @keyframes steam { 0% { opacity: 0; transform: translateY(5px) scale(0.5); } 50% { opacity: 0.8; transform: translateY(-10px) scale(1); } 100% { opacity: 0; transform: translateY(-25px) scale(1.5); } }
         .animate-steam-left { animation: steam 0.8s infinite linear; }
         .animate-steam-right { animation: steam 0.8s infinite linear reverse; }
-
-        @keyframes throw { 
-            0% { transform: translate(-100px, 50px) rotate(0deg); opacity: 0; } 
-            20% { opacity: 1; } 
-            80% { transform: translate(120px, -50px) rotate(360deg); opacity: 1; } 
-            100% { transform: translate(140px, -40px) rotate(380deg); opacity: 0; } 
-        }
+        @keyframes throw { 0% { transform: translate(-100px, 50px) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 80% { transform: translate(120px, -50px) rotate(360deg); opacity: 1; } 100% { transform: translate(140px, -40px) rotate(380deg); opacity: 0; } }
         .animate-throw { animation: throw 1.5s infinite linear; }
-
-        @keyframes tantrum { 
-            0% { transform: rotate(90deg) translateX(0px); } 
-            25% { transform: rotate(85deg) translateX(-5px); } 
-            50% { transform: rotate(95deg) translateX(5px); } 
-            75% { transform: rotate(85deg) translateX(-5px); } 
-            100% { transform: rotate(90deg) translateX(0px); } 
-        }
+        @keyframes tantrum { 0% { transform: rotate(90deg) translateX(0px); } 25% { transform: rotate(85deg) translateX(-5px); } 50% { transform: rotate(95deg) translateX(5px); } 75% { transform: rotate(85deg) translateX(-5px); } 100% { transform: rotate(90deg) translateX(0px); } }
         .animate-tantrum { animation: tantrum 0.3s infinite linear; }
-
-        @keyframes ping {
-            75%, 100% { transform: scale(2); opacity: 0; }
-        }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
         .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
     </style>
 </head>
@@ -148,7 +104,7 @@
             playBreathOut: function() { this.playNoise(1.5, 0.05); }
         };
 
-        // --- THE RED ANGRY BLOCK CHARACTER (Matching image_76e31d.png) ---
+        // --- THE RED ANGRY BLOCK CHARACTER (Corrected to match image_76e31d.png) ---
         const RedAngryBlockSVG = () => (
             <svg viewBox="0 0 200 200" className="w-64 h-64 animate-shake origin-bottom">
                 {/* Main Head: Red Rounded Square */}
@@ -170,8 +126,8 @@
                 {/* Eyes: Large White Circles with Pupils */}
                 <circle cx="70" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
                 <circle cx="130" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
-                <circle cx="72" cy="95" r="4" fill="black" /> {/* Pupil Looking Right */}
-                <circle cx="128" cy="95" r="4" fill="black" /> {/* Pupil Looking Left */}
+                <circle cx="72" cy="95" r="5" fill="black" /> {/* Pupil Looking Right */}
+                <circle cx="128" cy="95" r="5" fill="black" /> {/* Pupil Looking Left */}
                 
                 {/* Mouth: Large Screaming Rectangle */}
                 <rect x="65" y="120" width="70" height="30" rx="10" fill="#7F1D1D" />
