@@ -4,15 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brave Feelings Lab - ANGRY</title>
-    
-    <!-- Load Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
-        /* ANIMATIONS */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -31,19 +27,20 @@
     </style>
 </head>
 <body class="bg-sky-100 min-h-screen flex items-center justify-center font-sans">
-
     <div id="root"></div>
-
     <script type="text/babel">
         const { useState, useEffect, useCallback } = React;
 
-        // --- SOUND ENGINE ---
+        // --- COMPLETE SOUND ENGINE WITH ALL TRACKS ---
         const SoundEngine = {
             ctx: null, bgNodes: [], bgInterval: null, isBgPlaying: false, currentTrack: 'titanic',
             init: function() { if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } },
+            
             playMusic: function(style) {
                 if (this.ctx && this.ctx.state === 'suspended') return;
-                this.stopBackgroundMusic(); this.currentTrack = style; this.isBgPlaying = true;
+                this.stopBackgroundMusic(); 
+                this.currentTrack = style; 
+                this.isBgPlaying = true;
                 if (style === 'chandelier') this.playChandelier();
                 else if (style === 'happy') this.playHappy();
                 else if (style === 'anthem') this.playAnthem();
@@ -53,91 +50,112 @@
                 else if (style === 'sun') this.playSun();
                 else if (style === 'titanic') this.playTitanic();
             },
+
             stopBackgroundMusic: function() {
                 if (this.bgInterval) { clearInterval(this.bgInterval); this.bgInterval = null; }
                 this.bgNodes.forEach(node => { try { if (node.stop) node.stop(); node.disconnect(); } catch (e) {} });
                 this.bgNodes = []; this.isBgPlaying = false;
             },
+
             playTone: function(freq, type, duration, volume = 0.1) {
                 if (!this.ctx) this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
                 osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
                 gain.gain.setValueAtTime(volume, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
                 osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + duration);
             },
-            playNoise: function(duration, volume = 0.2) {
-                if (!this.ctx) this.init(); const bufferSize = this.ctx.sampleRate * duration; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                const noise = this.ctx.createBufferSource(); noise.buffer = buffer;
-                const gain = this.ctx.createGain(); gain.gain.setValueAtTime(volume, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-                noise.connect(gain); gain.connect(this.ctx.destination); noise.start();
-            },
-            playTitanic: function() {
-                if (!this.ctx) this.init(); let step = 0; const stepTime = 0.15; 
-                const E4 = 329.63, Fs4 = 369.99, Gs4 = 415.30, A4 = 440.00, B4 = 493.88, B3 = 246.94;
-                const melodySequence = [{ s: 0, f: E4 }, { s: 2, f: E4 }, { s: 4, f: E4 }, { s: 6, f: E4 }, { s: 8, f: B4 }, { s: 12, f: A4 }, { s: 13, f: Gs4 }, { s: 14, f: Fs4 }, { s: 15, f: Gs4 }, { s: 16, f: A4 }, { s: 20, f: Gs4 }, { s: 22, f: Fs4 }, { s: 24, f: E4 }];
+
+            // --- MUSIC PATTERNS ---
+            playTitanic: function() { // Cinematic Flute
+                if (!this.ctx) this.init(); let step = 0; const stepTime = 0.3; 
+                const melody = [329.6, 329.6, 329.6, 329.6, 293.6, 329.6, 329.6, 293.6, 329.6, 369.9, 440.0, 392.0]; 
                 this.bgInterval = setInterval(() => {
-                    const now = this.ctx.currentTime; const localStep = step % 32;
-                    const note = melodySequence.find(n => n.s === localStep);
-                    if (note) {
-                        const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(note.f, now);
-                        gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.08, now + 0.1); gain.gain.linearRampToValueAtTime(0.06, now + 0.3); gain.gain.linearRampToValueAtTime(0, now + 0.6);
-                        const lfo = this.ctx.createOscillator(); lfo.frequency.value = 5; const lfoGain = this.ctx.createGain(); lfoGain.gain.value = 3; lfo.connect(lfoGain); lfoGain.connect(osc.frequency); lfo.start();
-                        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(now + 0.7);
-                    }
-                    if (localStep === 0 || localStep === 16) {
-                        const root = (localStep === 0) ? E4 : B3; [root/2, 311.13/2, 493.88/2].forEach(freq => { const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(freq, now); const filter = this.ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 400; gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.05, now + 1); gain.gain.linearRampToValueAtTime(0, now + (stepTime * 16)); osc.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(now + (stepTime * 16)); });
-                    }
+                    const note = melody[step % melody.length];
+                    this.playTone(note, 'sine', 0.5, 0.1);
                     step++;
                 }, stepTime * 1000);
             },
-            // (Simplified placeholders)
-            playChandelier: function() {}, playHappy: function() {}, playAnthem: function() {}, playDontSpeak: function() {}, playJW: function() {}, playGoodNews: function() {}, playSun: function() {},
+            playChandelier: function() { // Pop Synth
+                 if (!this.ctx) this.init(); let step = 0; 
+                 this.bgInterval = setInterval(() => {
+                    if (step % 4 === 0) this.playTone(110, 'square', 0.2, 0.1); // Bass C2
+                    if (step % 4 === 2) this.playTone(164, 'triangle', 0.1, 0.05); // Snare-ish
+                    if (step % 8 === 0) this.playTone(440, 'sawtooth', 0.3, 0.05); // High lead
+                    step++;
+                 }, 200);
+            },
+            playHappy: function() { // Upbeat Marimba
+                 if (!this.ctx) this.init(); let step = 0; 
+                 const notes = [523.2, 659.2, 783.9, 1046.5];
+                 this.bgInterval = setInterval(() => {
+                    if(step % 2 === 0) this.playTone(notes[(step/2)%4], 'sine', 0.1, 0.1);
+                    step++;
+                 }, 150);
+            },
+            playAnthem: function() { // Stomping Rock
+                 if (!this.ctx) this.init(); let step = 0; 
+                 this.bgInterval = setInterval(() => {
+                    if (step % 4 === 0) this.playTone(80, 'sawtooth', 0.3, 0.2); // Heavy Kick
+                    if (step % 4 === 2) this.playTone(120, 'square', 0.1, 0.1); // Clap
+                    step++;
+                 }, 300);
+            },
+            playDontSpeak: function() { // Sad Guitar
+                if (!this.ctx) this.init(); let step = 0; 
+                const arpeggio = [196.0, 233.1, 293.7, 349.2]; // Gm
+                this.bgInterval = setInterval(() => {
+                    this.playTone(arpeggio[step % 4], 'triangle', 0.4, 0.08);
+                    step++;
+                }, 400);
+            },
+            playJW: function() { // Acoustic Strum
+                if (!this.ctx) this.init(); let step = 0; 
+                this.bgInterval = setInterval(() => {
+                    if(step%8===0) { this.playTone(146.8, 'triangle', 0.5, 0.05); this.playTone(220.0, 'triangle', 0.5, 0.05); } // D Chord
+                    step++;
+                }, 100);
+            },
+            playGoodNews: function() { // Epic Orchestral
+                if (!this.ctx) this.init(); let step = 0; 
+                this.bgInterval = setInterval(() => {
+                     if(step%16===0) this.playTone(65.4, 'sawtooth', 1.0, 0.1); // Deep Bass C2
+                     if(step%4===0) this.playTone(261.6, 'sine', 0.5, 0.05); // Ostinato C4
+                     step++;
+                }, 125);
+            },
+            playSun: function() { // Bright Folk
+                if (!this.ctx) this.init(); let step = 0; 
+                const riff = [293.6, 369.9, 440.0, 369.9];
+                this.bgInterval = setInterval(() => {
+                    this.playTone(riff[step % 4], 'triangle', 0.2, 0.1);
+                    step++;
+                }, 200);
+            },
+            
             playClick: function() { this.playTone(800, 'sine', 0.1, 0.1); },
             playStart: function() { this.playTone(400, 'triangle', 0.3, 0.1); }, 
             playSuccess: function() { setTimeout(() => this.playTone(523.25, 'sine', 0.6, 0.1), 0); setTimeout(() => this.playTone(659.25, 'sine', 0.6, 0.1), 100); setTimeout(() => this.playTone(783.99, 'sine', 0.8, 0.1), 200); },
-            playWhoosh: function() { this.playNoise(0.3, 0.1); },
-            playCrash: function() { this.playNoise(0.5, 0.3); },
+            playWhoosh: function() { this.playTone(100, 'square', 0.3, 0.05); }, // Simplified noise
+            playCrash: function() { this.playTone(50, 'sawtooth', 0.5, 0.2); },
             playMeltdown: function() { this.playTone(150, 'sawtooth', 0.4, 0.2); },
             playYell: function() { this.playTone(300, 'sawtooth', 0.6, 0.2); },
             playWalkAway: function() { this.playTone(200, 'square', 0.1, 0.05); setTimeout(() => this.playTone(300, 'square', 0.1, 0.05), 100); },
-            playBreathIn: function() { this.playNoise(1.5, 0.05); },
-            playBreathOut: function() { this.playNoise(1.5, 0.05); }
+            playBreathIn: function() { this.playTone(400, 'sine', 1.5, 0.05); }, // Wind sound sim
+            playBreathOut: function() { this.playTone(300, 'sine', 1.5, 0.05); }
         };
 
-        // --- THE RED ANGRY BLOCK CHARACTER (Matching image_76e31d.png) ---
-        const RedAngryBlockSVG = () => (
-            <svg viewBox="0 0 200 200" className="w-64 h-64 animate-shake origin-bottom">
-                {/* Main Head: Red Rounded Square */}
-                <rect x="45" y="45" width="110" height="110" rx="25" fill="#EF4444" stroke="#B91C1C" strokeWidth="4" />
-                
-                {/* Gradient Highlight */}
-                <defs>
-                  <radialGradient id="shine" cx="30%" cy="30%" r="50%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="white" stopOpacity="0" />
-                  </radialGradient>
-                </defs>
-                <rect x="45" y="45" width="110" height="110" rx="25" fill="url(#shine)" />
+        // --- COMPONENTS ---
 
-                {/* Eyebrows: Thick, Angled Down */}
+        const RedAngryBlockSVG = () => (
+            <svg viewBox="0 0 200 200" className="w-64 h-64 animate-shake">
+                <rect x="45" y="45" width="110" height="110" rx="25" fill="#EF4444" stroke="#B91C1C" strokeWidth="4" />
                 <path d="M55,75 L85,85" stroke="#7F1D1D" strokeWidth="7" strokeLinecap="round" />
                 <path d="M145,75 L115,85" stroke="#7F1D1D" strokeWidth="7" strokeLinecap="round" />
-                
-                {/* Eyes: Large White Circles with Pupils */}
                 <circle cx="70" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
                 <circle cx="130" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
-                <circle cx="72" cy="95" r="5" fill="black" /> {/* Pupil Looking Right */}
-                <circle cx="128" cy="95" r="5" fill="black" /> {/* Pupil Looking Left */}
-                
-                {/* Mouth: Large Screaming Rectangle */}
+                <circle cx="72" cy="95" r="5" fill="black" />
+                <circle cx="128" cy="95" r="5" fill="black" />
                 <rect x="65" y="120" width="70" height="30" rx="10" fill="#7F1D1D" />
-                {/* Teeth: White line across */}
                 <path d="M65,130 H135" stroke="white" strokeWidth="3" opacity="0.9" /> 
-                <path d="M75,120 V150 M90,120 V150 M110,120 V150 M125,120 V150" stroke="white" strokeWidth="1" opacity="0.5" />
-                
-                {/* Steam Effects */}
-                <path d="M35,55 Q15,35 45,25" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-left" opacity="0.8" />
-                <path d="M165,55 Q185,35 155,25" fill="none" stroke="#FECACA" strokeWidth="4" className="animate-steam-right" opacity="0.8" />
             </svg>
         );
 
@@ -162,7 +180,10 @@
         };
 
         const NegativeOutcome = ({ type, character, onRetry, onCoping, data }) => {
-            const content = (data.type === 'throw' || data.type === 'meltdown') ? <ActionScene type={data.type} character={character} /> : <span className="text-8xl">{data.scene}</span>;
+            const content = (data.type === 'throw' || data.type === 'meltdown') 
+                ? <ActionScene type={data.type} character={character} /> 
+                : <span className="text-8xl">{data.scene}</span>;
+                
             return (
                 <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${data.bgColor}`}>
                     <h2 className="text-2xl font-bold text-gray-800">{data.title}</h2>
@@ -231,7 +252,7 @@
                 balloon: { 
                     id: 'balloon', name: 'Balloon Breathing', 
                     intro: { emoji: '🎈', title: 'Balloon Breathing', desc: 'Pretend there is a big balloon in your tummy. Let\'s fill it up with air!', science: 'Deep breathing signals your brain to calm down by activating the parasympathetic nervous system. It lowers your heart rate and helps you think clearly.', bgColor: 'bg-blue-50', btnColor: 'bg-blue-500' },
-                    steps: [ { emoji: '🎈😤', text: 'Imagine a balloon in your tummy. Take a big breath in through your nose to fill it up!', sound: 'breath_in' }, { emoji: '✋🛑', text: 'Hold that breath for 3 seconds. 1... 2... 3...', sound: null }, { emoji: '🌬️💨', text: 'Now let the air out slowly. Whoosh!', sound: 'breath_out' } ]
+                    steps: [ { emoji: '🎈😤', text: 'Imagine a balloon in your tummy. Take a big breath in to fill it up!', sound: 'breath_in' }, { emoji: '✋🛑', text: 'Hold that breath for 3 seconds. 1... 2... 3...', sound: null }, { emoji: '🌬️💨', text: 'Now let the air out slowly. Whoosh!', sound: 'breath_out' } ]
                 },
                 squeeze: { 
                     id: 'squeeze', name: 'Stress Squeeze',
@@ -245,7 +266,7 @@
                 },
                 count: { 
                     id: 'count', name: 'Count to 10',
-                    intro: { emoji: '🔢', title: 'Count to 10', desc: 'Slow down your brain by counting slowly to ten.', science: 'Counting requires focus and concentration. This distracts your brain from angry thoughts and gives your impulse control center time to catch up.', bgColor: 'bg-indigo-50', btnColor: 'bg-indigo-500' },
+                    intro: { emoji: '🔢', title: 'Count to 10', desc: 'Slow down your brain by counting slowly to ten.', science: 'Counting requires focus, which distracts your brain from angry thoughts.', bgColor: 'bg-indigo-50', btnColor: 'bg-indigo-500' },
                     steps: [ { emoji: '1️⃣ 2️⃣ 3️⃣', text: 'Close your eyes. Start counting slowly. One... Two... Three...', sound: 'click' }, { emoji: '4️⃣ 5️⃣ 6️⃣', text: 'Keep going. Take a breath. Four... Five... Six...', sound: 'click' }, { emoji: '7️⃣ 8️⃣ 9️⃣ 🔟', text: 'Almost there! Seven... Eight... Nine... Ten! Open your eyes.', sound: 'success' } ]
                 }
             };
@@ -274,12 +295,20 @@
             }, [soundEnabled, musicStyle]);
 
             const safePlay = (key) => playSound(key);
+            
+            // FIX: Updated Cycle Music to update state AND trigger playMusic immediately
             const cycleMusic = () => {
                 const styles = ['chandelier', 'happy', 'anthem', 'dontspeak', 'jw', 'goodnews', 'sun', 'titanic'];
                 const nextIndex = (styles.indexOf(musicStyle) + 1) % styles.length;
-                setMusicStyle(styles[nextIndex]);
-                if (soundEnabled && SoundEngine.ctx && SoundEngine.ctx.state !== 'suspended') SoundEngine.playMusic(styles[nextIndex]);
+                const nextStyle = styles[nextIndex];
+                setMusicStyle(nextStyle);
+                // Trigger immediate play if sound is on
+                if (soundEnabled && SoundEngine.ctx) {
+                    if (SoundEngine.ctx.state === 'suspended') SoundEngine.ctx.resume();
+                    SoundEngine.playMusic(nextStyle);
+                }
             };
+
             const getMusicLabel = () => {
                 const labels = { chandelier: 'Pop 🎤', happy: 'Happy ☀️', anthem: 'Anthem 🥁', dontspeak: 'Sad 🎸', jw: 'Acoustic 📖', goodnews: 'Epic 🎻', sun: 'Sun ☀️', titanic: 'Titanic 🚢' };
                 return labels[musicStyle] || 'Music';
@@ -288,13 +317,7 @@
             // Logic
             const handleStart = () => { safePlay('start'); setCurrentView('character'); };
             const handleRestartApp = () => { safePlay('start'); setCurrentView('welcome'); setCharacter('boy'); setActiveTab('negative'); setCurrentTool(null); setToolStep(1); };
-            //const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };//
-            // FIX: Navigate to the goodbye.html in the root folder//
-            const handleExit = () => { 
-                safePlay('click'); 
-                SoundEngine.stopBackgroundMusic(); 
-                window.location.href = "../../goodbye.html"; 
-            };
+            const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); window.location.href = "../../goodbye.html"; };
             const handleTryAnotherTool = () => { safePlay('click'); setCurrentView('menu'); setActiveTab('coping'); };
             const handleContinue = () => { safePlay('click'); setCurrentView('restart'); };
             const handleReactionClick = (key) => { if(key === 'yell') safePlay('yell'); if(key === 'walkaway') safePlay('walkaway'); setCurrentView(`negative_${key}`); };
@@ -319,7 +342,7 @@
                 const newState = !soundEnabled; setSoundEnabled(newState);
                 if (newState) {
                     if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') SoundEngine.ctx.resume();
-                    if (currentView !== 'session_ended') SoundEngine.playMusic(musicStyle);
+                    SoundEngine.playMusic(musicStyle);
                 } else { SoundEngine.stopBackgroundMusic(); }
             };
 
@@ -422,7 +445,7 @@
                         {currentView === 'goodbye' && (
                             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
                                 <div className="text-9xl animate-bounce">👋</div><h2 className="text-3xl font-black text-blue-500">See you next time!</h2>
-                                <p className="text-xl text-gray-600 font-medium">Remember to take deep breaths.</p>
+                                <p className="text-xl text-gray-600 font-medium">Remember: Mistakes help us learn!</p>
                                 <button onClick={handleRestartApp} className="mt-8 px-8 py-3 bg-green-500 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-600">Start Over</button>
                             </div>
                         )}
@@ -444,4 +467,3 @@
     </script>
 </body>
 </html>
-
