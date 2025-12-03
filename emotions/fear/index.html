@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brave Feelings Lab – FEAR Navigator</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #e0f2fe;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .app {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  }
+  h1, h2 { text-align: center; }
+  .big { font-size: 80px; text-align: center; margin: 20px 0; }
+  .btn {
+    display: block;
+    width: 100%;
+    background: #0284c7;
+    padding: 14px;
+    color: white;
+    text-align: center;
+    margin-top: 12px;
+    border-radius: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .btn.alt {
+    background: #e2e8f0;
+    color: #334155;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .card {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #cbd5e1;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  .text-box {
+    background: #f1f5f9;
+    border-radius: 20px;
+    padding: 16px;
+    margin-top: 18px;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// --------------------------------------------------------
+// BASIC STATE
+// --------------------------------------------------------
+let view = "welcome";
+let character = "boy";
+let tab = "fear";
+let selectedReaction = null;
+let step = 1;
+
+// --------------------------------------------------------
+// DATA
+// --------------------------------------------------------
+const reactions = {
+  fear: {
+    freeze:   { emoji:"🧊",  desc:"You freeze like a statue. Your body becomes stiff and unsure what to do." },
+    hide:     { emoji:"🫣",  desc:"You hide behind something. Your heart beats fast and you feel unsafe." },
+    scream:   { emoji:"😱",  desc:"You scream very loud because everything feels too much." },
+    run:      { emoji:"🏃💨", desc:"You run away fast. Your body thinks something bad is close." }
+  }
+};
+
+const tools = {
+  breath: [
+    ["🌬️", "Take a deep breath. Slow in… slow out."],
+    ["🫁", "Place a hand on your chest. Feel it move gently."],
+    ["😌", "Your body slows down. You feel safer now."]
+  ],
+  nameit: [
+    ["🧠", "Say: 'I feel scared.' Naming it makes it smaller."],
+    ["💬", "Say what made you scared."],
+    ["🙂", "You begin to feel in control again."]
+  ],
+  safeplace: [
+    ["🚪", "Look for a safe spot near you."],
+    ["🪑", "Sit down or hold onto a chair."],
+    ["🧸", "Your body settles. You are okay."],
+  ],
+  calladult: [
+    ["🙋‍♂️", "Find a grown-up you trust."],
+    ["🗣️", "Tell them: 'I'm scared because…'"],
+    ["🤝", "They listen and stay with you. Your fear eases."]
+  ]
+};
+
+// --------------------------------------------------------
+// RENDER SYSTEM
+// --------------------------------------------------------
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  if (view === "welcome") return renderWelcome();
+  if (view === "character") return renderCharacter();
+  if (view === "trigger") return renderTrigger();
+  if (view === "menu") return renderMenu();
+  if (view === "negOutcome") return renderNegativeOutcome();
+  if (view === "tool") return renderTool();
+  if (view === "reflection") return renderReflection();
+}
+
+// --------------------------------------------------------
+// SCREENS
+// --------------------------------------------------------
+
+function renderWelcome(){
+  app.innerHTML = `
+    <h1>Brave Feelings Lab</h1>
+    <h2>Emotion Navigator – FEAR</h2>
+    <div class="big">😨</div>
+    <div class="btn" onclick="view='character'; render()">START</div>
+  `;
+}
+
+function renderCharacter(){
+  app.innerHTML = `
+    <h2>Who is playing today?</h2>
+    <div class="grid">
+      <div class="card" onclick="character='boy'; view='trigger'; render()">👦 Boy</div>
+      <div class="card" onclick="character='girl'; view='trigger'; render()">👧 Girl</div>
+    </div>
+    <div class="btn alt" onclick="view='welcome'; render()">Back</div>
+  `;
+}
+
+function renderTrigger(){
+  app.innerHTML = `
+    <h2>Something scared you!</h2>
+    <div class="big">👻➡️😨</div>
+    <div class="text-box">
+      You heard a loud noise behind you. Your heart jumps and your stomach feels tight.
+    </div>
+    <div class="btn" onclick="view='menu'; render()">Next</div>
+    <div class="btn alt" onclick="view='character'; render()">Back</div>
+  `;
+}
+
+function renderMenu(){
+  app.innerHTML = `
+    <h2>What will you do?</h2>
+    <p style="text-align:center;color:#475569">Tap a reaction or a coping tool.</p>
+
+    <h3 style="text-align:center;margin-top:10px;">Reactions</h3>
+    <div class="grid">
+      ${Object.keys(reactions.fear).map(key => `
+        <div class="card" onclick="selectedReaction='${key}'; view='negOutcome'; render()">
+          <div class="big" style="font-size:40px">${reactions.fear[key].emoji}</div>
+          ${key.toUpperCase()}
+        </div>
+      `).join("")}
+    </div>
+
+    <h3 style="text-align:center;margin-top:20px;">Coping Tools</h3>
+    <div class="grid">
+      <div class="card" onclick="startTool('breath')">🎈 Breath</div>
+      <div class="card" onclick="startTool('nameit')">💬 Name It</div>
+      <div class="card" onclick="startTool('safeplace')">🪑 Safe Place</div>
+      <div class="card" onclick="startTool('calladult')">👩‍🏫 Adult Help</div>
+    </div>
+
+    <div class="btn alt" onclick="view='trigger'; render()">Back</div>
+  `;
+}
+
+function renderNegativeOutcome(){
+  const r = reactions.fear[selectedReaction];
+  app.innerHTML = `
+    <h2>${selectedReaction.toUpperCase()}</h2>
+    <div class="big">${r.emoji}</div>
+    <div class="text-box">${r.desc}</div>
+
+    <div class="btn alt" onclick="view='menu'; render()">Try Another Reaction</div>
+    <div class="btn" onclick="view='menu'; render()">Go to Coping Tools</div>
+  `;
+}
+
+function startTool(key){
+  window.currentTool = key;
+  step = 1;
+  view = "tool";
+  render();
+}
+
+function renderTool(){
+  const seq = tools[currentTool];
+  const [emoji, text] = seq[step-1];
+
+  app.innerHTML = `
+    <h2 style="text-align:center">${currentTool.replace(/^\w/,c=>c.toUpperCase())}</h2>
+    <div class="big">${emoji}</div>
+    <div class="text-box">${text}</div>
+
+    <div class="btn" onclick="nextStep()">
+      ${step === 3 ? "Finish" : "Next →"}
+    </div>
+
+    <div class="btn alt" onclick="step=1; view='menu'; render()">Back</div>
+  `;
+}
+
+function nextStep(){
+  if(step < 3){ step++; render(); }
+  else{ view="reflection"; render(); }
+}
+
+function renderReflection(){
+  app.innerHTML = `
+    <h2>You Did It!</h2>
+    <div class="big">😊✨</div>
+    <div class="text-box">
+      You used a coping tool. Your fear became smaller.  
+      You are brave and strong inside.
+    </div>
+    <div class="btn" onclick="view='welcome'; render()">Restart</div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
