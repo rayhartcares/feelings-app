@@ -288,7 +288,13 @@
             // Logic
             const handleStart = () => { safePlay('start'); setCurrentView('character'); };
             const handleRestartApp = () => { safePlay('start'); setCurrentView('welcome'); setCharacter('boy'); setActiveTab('negative'); setCurrentTool(null); setToolStep(1); };
-            const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };
+            //const handleExit = () => { safePlay('click'); SoundEngine.stopBackgroundMusic(); setCurrentView('session_ended'); };//
+            // FIX: Navigate to the goodbye.html in the root folder//
+            const handleExit = () => { 
+                safePlay('click'); 
+                SoundEngine.stopBackgroundMusic(); 
+                window.location.href = "../../goodbye.html"; 
+            };
             const handleTryAnotherTool = () => { safePlay('click'); setCurrentView('menu'); setActiveTab('coping'); };
             const handleContinue = () => { safePlay('click'); setCurrentView('restart'); };
             const handleReactionClick = (key) => { if(key === 'yell') safePlay('yell'); if(key === 'walkaway') safePlay('walkaway'); setCurrentView(`negative_${key}`); };
@@ -438,3 +444,4 @@
     </script>
 </body>
 </html>
+
