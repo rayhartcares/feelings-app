@@ -539,10 +539,10 @@
         setToolStep(1);
       };
       const handleExit = () => {
-        safePlay('click');
-        SoundEngine.stopAll();
-        setCurrentView('session_ended');
-      };
+    SoundEngine.stopBackgroundMusic();
+    // from /emotions/anger/ go back to /goodbye.html at the app root
+    window.location.href = '../../goodbye.html';
+};
 
       const handleReactionClick = (key) => {
         if (key === 'yell') safePlay('yell');
