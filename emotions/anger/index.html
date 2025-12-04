@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brave Feelings Lab - ANGRY</title>
 
-  <!-- Tailwind + React + Babel -->
+  <!-- Tailwind + React stack -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -16,10 +16,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
 
-    @keyframes bounce-slow {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
+    @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
 
     @keyframes shake {
@@ -32,7 +29,7 @@
       60% { transform: translate(-3px, 1px) rotate(0deg); }
       70% { transform: translate(3px, 1px) rotate(-1deg); }
       80% { transform: translate(-1px, -1px) rotate(1deg); }
-      90% { transform: translate(1px, 2px) rotate(0deg); }
+      90% { transform: translate(1px, 2px) rotate(-1deg); }
       100% { transform: translate(1px, -2px) rotate(-1deg); }
     }
     .animate-shake { animation: shake 0.5s infinite; }
@@ -42,16 +39,8 @@
       50% { opacity: 0.8; transform: translateY(-10px) scale(1); }
       100% { opacity: 0; transform: translateY(-25px) scale(1.5); }
     }
-    .animate-steam-left  { animation: steam 0.8s infinite linear; }
+    .animate-steam-left { animation: steam 0.8s infinite linear; }
     .animate-steam-right { animation: steam 0.8s infinite linear reverse; }
-
-    @keyframes throwToy {
-      0% { transform: translate(-100px, 50px) rotate(0deg); opacity: 0; }
-      20% { opacity: 1; }
-      80% { transform: translate(120px, -50px) rotate(360deg); opacity: 1; }
-      100% { transform: translate(140px, -40px) rotate(380deg); opacity: 0; }
-    }
-    .animate-throw { animation: throwToy 1.5s infinite linear; }
 
     @keyframes tantrum {
       0% { transform: rotate(90deg) translateX(0px); }
@@ -70,209 +59,148 @@
 <body class="bg-sky-100 min-h-screen flex items-center justify-center font-sans">
   <div id="root"></div>
 
- <script type="text/babel">
-  const { useState, useEffect, useCallback } = React;
-
-  // --- SOUND ENGINE ---
-  const SoundEngine = {
-    ...
-  };
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
 
     /* -------------------------------------------------
-       SIMPLE SOUND ENGINE (no external files)
-    -------------------------------------------------- */
-    // --- SOUND ENGINE WITH KIDS’ SONGS ---
-const SoundEngine = {
-  ctx: null,
-  bgInterval: null,
-  bgNodes: [],
-  isBgPlaying: false,
-  currentTrack: 'twinkle',
+       SOUND ENGINE WITH KIDS’ SONGS (Web Audio)
+       ------------------------------------------------- */
+    const SoundEngine = {
+      ctx: null,
+      bgInterval: null,
+      bgNodes: [],
+      isBgPlaying: false,
+      currentTrack: 'twinkle',
 
-  init() {
-    if (!this.ctx) {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-  },
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      },
 
-  // Simple helper: single tone
-  playTone(freq, type = 'sine', duration = 0.5, volume = 0.12) {
-    if (!this.ctx) this.init();
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+      /* Basic tone & noise helpers */
+      playTone(freq, type = 'sine', duration = 0.35, volume = 0.12) {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
 
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
 
-    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.01,
-      this.ctx.currentTime + duration
-    );
+        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + duration);
 
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
 
-    osc.start();
-    osc.stop(this.ctx.currentTime + duration);
-  },
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      },
 
-  // White-noise helper for whooshes / breaths
-  playNoise(duration = 0.5, volume = 0.2) {
-    if (!this.ctx) this.init();
-    const bufferSize = this.ctx.sampleRate * duration;
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-    const noise = this.ctx.createBufferSource();
-    noise.buffer = buffer;
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.01,
-      this.ctx.currentTime + duration
-    );
-    noise.connect(gain);
-    gain.connect(this.ctx.destination);
-    noise.start();
-  },
+      playNoise(duration = 0.4, volume = 0.15) {
+        this.init();
+        const bufferSize = this.ctx.sampleRate * duration;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
 
-  // ====== BACKGROUND MELODIES (KIDS’ SONGS) ======
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + duration);
 
-  stopBackgroundMusic() {
-    if (this.bgInterval) {
-      clearInterval(this.bgInterval);
-      this.bgInterval = null;
-    }
-    this.bgNodes.forEach(node => {
-      try {
-        node.stop && node.stop();
-        node.disconnect();
-      } catch (e) {}
-    });
-    this.bgNodes = [];
-    this.isBgPlaying = false;
-  },
+        noise.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start();
+      },
 
-  playMusic(style) {
-    if (!this.ctx) this.init();
-    if (this.ctx.state === 'suspended') return;
+      /* Short SFX */
+      playClick()    { this.playTone(900, 'square', 0.08, 0.09); }
+      ,
+      playStart()    { this.playTone(440, 'triangle', 0.25, 0.12); },
+      playSuccess()  {
+        this.playTone(523.25, 'sine', 0.22, 0.12);
+        setTimeout(() => this.playTone(659.25, 'sine', 0.22, 0.12), 200);
+        setTimeout(() => this.playTone(783.99, 'sine', 0.30, 0.12), 400);
+      },
+      playWhoosh()   { this.playNoise(0.3, 0.12); },
+      playCrash()    { this.playNoise(0.5, 0.25); },
+      playMeltdown() { this.playTone(160, 'sawtooth', 0.5, 0.2); },
+      playYell()     { this.playTone(350, 'sawtooth', 0.5, 0.18); },
+      playWalkAway() { this.playTone(220, 'square', 0.12, 0.08); },
+      playBreathIn() { this.playNoise(1.2, 0.06); },
+      playBreathOut(){ this.playNoise(1.2, 0.06); },
 
-    this.stopBackgroundMusic();
-    this.currentTrack = style;
-    this.isBgPlaying = true;
+      /* Kids’ song melodies */
+      patterns: null,
 
-    if (style === 'twinkle') this.playTwinkle();
-    if (style === 'london') this.playLondonBridge();
-    if (style === 'row') this.playRowRow();
-  },
+      buildPatterns() {
+        if (this.patterns) return;
 
-  // Shared note table (C major, 4th octave)
-  NOTES: {
-    C4: 261.63,
-    D4: 293.66,
-    E4: 329.63,
-    F4: 349.23,
-    G4: 392.0,
-    A4: 440.0,
-    B4: 493.88
-  },
+        // Note frequencies
+        const C4 = 261.63, D4 = 293.66, E4 = 329.63, F4 = 349.23,
+              G4 = 392.00, A4 = 440.00, B4 = 493.88, C5 = 523.25;
 
-  // Generic looping melody player
-  playLoopingMelody(sequence, beatMs = 400) {
-    if (!this.ctx) this.init();
-    let index = 0;
+        this.patterns = {
+          twinkle: [
+            { f: C4 }, { f: C4 }, { f: G4 }, { f: G4 },
+            { f: A4 }, { f: A4 }, { f: G4 }, // Twinkle twinkle little star
+            { f: F4 }, { f: F4 }, { f: E4 }, { f: E4 },
+            { f: D4 }, { f: D4 }, { f: C4 }  // How I wonder what you are
+          ],
+          london: [
+            { f: G4 }, { f: A4 }, { f: G4 }, { f: F4 }, { f: E4 }, { f: F4 }, // London bridge is falling down
+            { f: G4 }, { f: D4 }, { f: E4 }, { f: F4 }, { f: E4 }, { f: F4 }, // falling down, falling down
+          ],
+          row: [
+            { f: C4 }, { f: C4 }, { f: C4 }, // Row row row
+            { f: D4 }, { f: E4 },              // your boat
+            { f: E4 }, { f: D4 }, { f: E4 }, { f: F4 }, { f: G4 } // gently down the stream
+          ]
+        };
+      },
 
-    this.bgInterval = setInterval(() => {
-      const step = sequence[index];
-      if (!step) {
-        index = 0;
-        return;
+      playMusic(style = 'twinkle') {
+        this.init();
+        if (this.ctx.state === 'suspended') return;
+
+        this.buildPatterns();
+        this.stopBackgroundMusic();
+        this.currentTrack = style;
+        this.isBgPlaying = true;
+
+        const pattern = this.patterns[style] || this.patterns.twinkle;
+        let i = 0;
+        const stepMs = 420; // tempo
+
+        this.bgInterval = setInterval(() => {
+          if (!this.isBgPlaying) return;
+          const note = pattern[i];
+          if (note && note.f) {
+            this.playTone(note.f, 'sine', 0.32, 0.11);
+          }
+          i = (i + 1) % pattern.length;
+        }, stepMs);
+      },
+
+      stopBackgroundMusic() {
+        if (this.bgInterval) {
+          clearInterval(this.bgInterval);
+          this.bgInterval = null;
+        }
+        this.isBgPlaying = false;
       }
+    };
 
-      const freq = step.note ? this.NOTES[step.note] : null;
-      const beats = step.beats || 1;
-
-      if (freq) {
-        this.playTone(freq, 'triangle', (beatMs * beats) / 1000, 0.08);
-      }
-      index = (index + 1) % sequence.length;
-    }, beatMs);
-  },
-
-  // “Twinkle Twinkle Little Star”
-  playTwinkle() {
-    const S = [
-      { note: 'C4', beats: 1 }, { note: 'C4', beats: 1 },
-      { note: 'G4', beats: 1 }, { note: 'G4', beats: 1 },
-      { note: 'A4', beats: 1 }, { note: 'A4', beats: 1 },
-      { note: 'G4', beats: 2 },
-
-      { note: 'F4', beats: 1 }, { note: 'F4', beats: 1 },
-      { note: 'E4', beats: 1 }, { note: 'E4', beats: 1 },
-      { note: 'D4', beats: 1 }, { note: 'D4', beats: 1 },
-      { note: 'C4', beats: 2 }
-    ];
-    this.playLoopingMelody(S, 420);
-  },
-
-  // “London Bridge Is Falling Down”
-  playLondonBridge() {
-    const S = [
-      { note: 'G4', beats: 1 }, { note: 'A4', beats: 1 }, { note: 'G4', beats: 1 },
-      { note: 'F4', beats: 1 }, { note: 'E4', beats: 1 }, { note: 'F4', beats: 1 },
-      { note: 'G4', beats: 2 },
-
-      { note: 'D4', beats: 1 }, { note: 'E4', beats: 1 }, { note: 'F4', beats: 1 },
-      { note: 'E4', beats: 1 }, { note: 'F4', beats: 1 }, { note: 'G4', beats: 2 }
-    ];
-    this.playLoopingMelody(S, 380);
-  },
-
-  // “Row, Row, Row Your Boat”
-  playRowRow() {
-    const S = [
-      { note: 'C4', beats: 1 }, { note: 'C4', beats: 1 }, { note: 'C4', beats: 1 },
-      { note: 'D4', beats: 1 }, { note: 'E4', beats: 2 },
-
-      { note: 'E4', beats: 1 }, { note: 'D4', beats: 1 }, { note: 'E4', beats: 1 },
-      { note: 'F4', beats: 1 }, { note: 'G4', beats: 2 },
-
-      { note: 'C4', beats: 0.5 }, { note: 'C4', beats: 0.5 },
-      { note: 'G4', beats: 0.5 }, { note: 'G4', beats: 0.5 },
-      { note: 'E4', beats: 0.5 }, { note: 'E4', beats: 0.5 },
-      { note: 'C4', beats: 2 }
-    ];
-    this.playLoopingMelody(S, 360);
-  },
-
-  // ====== SHORT SOUND EFFECTS (keep these) ======
-  playClick() { this.playTone(900, 'square', 0.08, 0.08); },
-  playStart() { this.playTone(450, 'triangle', 0.25, 0.1); },
-  playSuccess() {
-    this.playTone(523.25, 'sine', 0.25, 0.09);  // C5
-    setTimeout(() => this.playTone(659.25, 'sine', 0.25, 0.09), 120); // E5
-    setTimeout(() => this.playTone(783.99, 'sine', 0.4, 0.09), 240);  // G5
-  },
-  playWhoosh() { this.playNoise(0.4, 0.12); },
-  playCrash() { this.playNoise(0.6, 0.25); },
-  playMeltdown() { this.playTone(160, 'sawtooth', 0.5, 0.18); },
-  playYell() { this.playTone(320, 'sawtooth', 0.5, 0.18); },
-  playWalkAway() {
-    this.playTone(220, 'square', 0.12, 0.08);
-    setTimeout(() => this.playTone(300, 'square', 0.12, 0.08), 120);
-  },
-  playBreathIn() { this.playNoise(1.2, 0.05); },
-  playBreathOut() { this.playNoise(1.2, 0.05); }
-};
-
-    /* -----------------------------------------------
-       RED ANGRY BLOCK (welcome screen mascot)
-    ------------------------------------------------ */
+    /* -------------------------------------------------
+       SVG RED ANGRY BLOCK CHARACTER
+       ------------------------------------------------- */
     const RedAngryBlockSVG = () => (
       <svg viewBox="0 0 200 200" className="w-64 h-64 animate-shake origin-bottom">
+        {/* Main head */}
         <rect x="45" y="45" width="110" height="110" rx="25"
               fill="#EF4444" stroke="#B91C1C" strokeWidth="4" />
         <defs>
@@ -282,41 +210,44 @@ const SoundEngine = {
           </radialGradient>
         </defs>
         <rect x="45" y="45" width="110" height="110" rx="25" fill="url(#shine)" />
+        {/* Eyebrows */}
         <path d="M55,75 L85,85" stroke="#7F1D1D" strokeWidth="7" strokeLinecap="round" />
         <path d="M145,75 L115,85" stroke="#7F1D1D" strokeWidth="7" strokeLinecap="round" />
+        {/* Eyes */}
         <circle cx="70" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
         <circle cx="130" cy="95" r="12" fill="white" stroke="#B91C1C" strokeWidth="2" />
         <circle cx="72" cy="95" r="5" fill="black" />
         <circle cx="128" cy="95" r="5" fill="black" />
+        {/* Mouth */}
         <rect x="65" y="120" width="70" height="30" rx="10" fill="#7F1D1D" />
         <path d="M65,130 H135" stroke="white" strokeWidth="3" opacity="0.9" />
         <path d="M75,120 V150 M90,120 V150 M110,120 V150 M125,120 V150"
               stroke="white" strokeWidth="1" opacity="0.5" />
-        <path d="M35,55 Q15,35 45,25" fill="none" stroke="#FECACA"
-              strokeWidth="4" className="animate-steam-left" opacity="0.8" />
-        <path d="M165,55 Q185,35 155,25" fill="none" stroke="#FECACA"
-              strokeWidth="4" className="animate-steam-right" opacity="0.8" />
+        {/* Steam */}
+        <path d="M35,55 Q15,35 45,25"
+              fill="none" stroke="#FECACA" strokeWidth="4"
+              className="animate-steam-left" opacity="0.8" />
+        <path d="M165,55 Q185,35 155,25"
+              fill="none" stroke="#FECACA" strokeWidth="4"
+              className="animate-steam-right" opacity="0.8" />
       </svg>
     );
 
-    /* -----------------------------------------------
-       NEGATIVE REACTION SCENES
-    ------------------------------------------------ */
+    /* -------------------------------------------------
+       SMALL VIEW COMPONENTS
+       ------------------------------------------------- */
+
     const ActionScene = ({ type, character }) => {
       const charEmoji = character === 'boy' ? '😠' : '😡';
-
       if (type === 'throw') {
         return (
           <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-red-50 rounded-3xl">
-            <div className="text-8xl absolute left-4 bottom-4 z-10">
-              {charEmoji}
-            </div>
-            <div className="absolute text-6xl animate-throw">🧸</div>
+            <div className="text-8xl absolute left-4 bottom-4 z-10">{charEmoji}</div>
+            <div className="absolute text-6xl animate-animate-throw">🧸</div>
             <div className="absolute right-4 top-10 text-6xl animate-pulse delay-700">💥</div>
           </div>
         );
       }
-
       if (type === 'meltdown') {
         return (
           <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-red-50 rounded-3xl">
@@ -327,34 +258,26 @@ const SoundEngine = {
           </div>
         );
       }
-
-      return (
-        <div className="flex items-center justify-center w-full h-full">
-          <span className="text-8xl">😡</span>
-        </div>
-      );
+      return null;
     };
 
-    const NegativeOutcome = ({ data, character, onRetry, onCoping }) => {
+    const NegativeOutcome = ({ character, onRetry, onCoping, data }) => {
       const content =
-        data.type === 'throw' || data.type === 'meltdown'
+        (data.type === 'throw' || data.type === 'meltdown')
           ? <ActionScene type={data.type} character={character} />
-          : <span className="text-8xl">{data.scene}</span>;
+          : <span className="text-8xl">{data.emoji || data.scene}</span>;
 
       return (
         <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${data.bgColor}`}>
           <h2 className="text-2xl font-bold text-gray-800">{data.title}</h2>
-
           <div className="bg-white p-4 rounded-3xl shadow-lg h-56 w-56 flex items-center justify-center border-4 border-gray-100 overflow-hidden relative">
             {content}
           </div>
-
           <div className="bg-white/80 p-4 rounded-xl backdrop-blur-sm">
             <p className="text-lg font-medium text-gray-700 leading-snug">
               {data.desc}
             </p>
           </div>
-
           <div className="w-full space-y-3">
             <button
               onClick={onRetry}
@@ -373,43 +296,32 @@ const SoundEngine = {
       );
     };
 
-    /* -----------------------------------------------
-       COPING TOOL COMPONENTS
-    ------------------------------------------------ */
     const ToolIntro = ({ tool, onStart, onBack }) => (
       <div className={`flex flex-col h-full justify-between items-center text-center p-4 rounded-3xl ${tool.intro.bgColor || 'bg-white'}`}>
         <div className="w-full flex justify-start mb-2">
-          <button
-            onClick={onBack}
-            className="text-gray-500 text-sm font-bold"
-          >
+          <button onClick={onBack} className="text-gray-500 text-sm font-bold">
             ⬅ Back
           </button>
         </div>
-
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           {tool.intro.title || tool.name}
         </h2>
-
         <div className="text-9xl mb-6 animate-bounce-slow">
           {tool.intro.emoji}
         </div>
-
         <div className="bg-white/80 p-4 rounded-xl backdrop-blur-sm mb-4">
           <p className="text-lg font-medium text-gray-700 leading-snug">
             {tool.intro.desc}
           </p>
         </div>
-
         <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100 mb-4 text-left w-full">
           <h3 className="text-sm font-bold text-blue-600 mb-1">
-            Why it works:
+            🔬 Why it works:
           </h3>
           <p className="text-sm text-gray-600 leading-relaxed">
             {tool.intro.science}
           </p>
         </div>
-
         <button
           onClick={onStart}
           className={`w-full py-4 text-white font-bold text-xl rounded-xl shadow-lg transform transition hover:scale-105 ${tool.intro.btnColor || 'bg-blue-500'}`}
@@ -424,18 +336,21 @@ const SoundEngine = {
       const isLongContent = currentStepData.emoji.length > 5;
 
       useEffect(() => {
-        if (currentStepData && currentStepData.sound) playSound(currentStepData.sound);
-      }, [step]);
+        if (currentStepData && currentStepData.sound) {
+          playSound(currentStepData.sound);
+        }
+      }, [step, currentStepData, playSound]);
 
       return (
         <div className="flex flex-col h-full justify-between items-center text-center p-2">
           <div className="w-full flex justify-between items-center mb-2">
-            <h2 className="text-xl font-bold text-green-700">{tool.name}</h2>
+            <h2 className="text-xl font-bold text-green-700">
+              {tool.name}
+            </h2>
             <span className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-bold">
               Step {step}/3
             </span>
           </div>
-
           <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden">
             <div
               className={`${isLongContent ? 'text-6xl tracking-widest' : 'text-9xl'} mb-6 transform transition-all hover:scale-110 duration-500 cursor-default`}
@@ -446,7 +361,6 @@ const SoundEngine = {
               {currentStepData.text}
             </p>
           </div>
-
           <div className="w-full flex gap-3 mt-4">
             <button
               onClick={onRestart}
@@ -465,33 +379,37 @@ const SoundEngine = {
       );
     };
 
-    /* -----------------------------------------------
+    /* -------------------------------------------------
        MAIN APP
-    ------------------------------------------------ */
+       ------------------------------------------------- */
     const App = () => {
       const [currentView, setCurrentView] = useState('welcome');
       const [character, setCharacter] = useState('boy');
       const [activeTab, setActiveTab] = useState('negative');
       const [soundEnabled, setSoundEnabled] = useState(true);
+      const [musicStyle, setMusicStyle] = useState('twinkle');
       const [currentTool, setCurrentTool] = useState(null);
       const [toolStep, setToolStep] = useState(1);
 
-      // Better reactions & coping tools (from your pasted code)
+      // Negative reactions
       const NEGATIVE_REACTIONS = {
         throw: {
           type: 'throw',
           title: 'Throwing Things',
+          emoji: '💥',
           scene: null,
           desc: 'Oh no! Throwing toys makes a big mess and might break something special.',
-          bgColor: 'bg-red-100'
+          bgColor: 'bg-red-100',
+          btnColor: 'bg-red-500'
         },
         yell: {
           type: 'emoji',
           emoji: '🗣️',
           title: 'Yelling Loudly',
           scene: '📢😫👂',
-          desc: 'Yelling hurts people\'s ears and makes them feel sad or scared.',
-          bgColor: 'bg-orange-100'
+          desc: "Yelling hurts people's ears and makes them feel sad or scared.",
+          bgColor: 'bg-orange-100',
+          btnColor: 'bg-orange-500'
         },
         meltdown: {
           type: 'meltdown',
@@ -499,18 +417,21 @@ const SoundEngine = {
           title: 'Having a Meltdown',
           scene: null,
           desc: 'Crying on the floor makes it hard to use your words to fix the problem.',
-          bgColor: 'bg-red-50'
+          bgColor: 'bg-red-50',
+          btnColor: 'bg-red-400'
         },
         walkaway: {
           type: 'emoji',
           emoji: '😤',
           title: 'Stomping Away',
           scene: '🚪🏃💨',
-          desc: 'Running away doesn\'t fix the problem. The problem is still there when you come back.',
-          bgColor: 'bg-gray-100'
+          desc: "Running away doesn't fix the problem. The problem is still there when you come back.",
+          bgColor: 'bg-gray-100',
+          btnColor: 'bg-gray-500'
         }
       };
 
+      // Coping tools
       const COPING_TOOLS = {
         balloon: {
           id: 'balloon',
@@ -518,9 +439,9 @@ const SoundEngine = {
           intro: {
             emoji: '🎈',
             title: 'Balloon Breathing',
-            desc: 'Pretend there is a big balloon in your tummy. Let\'s fill it up with air!',
+            desc: "Pretend there is a big balloon in your tummy. Let's fill it up with air!",
             science:
-              'Deep breathing signals your brain to calm down by activating the parasympathetic nervous system. It lowers your heart rate and helps you think clearly.',
+              'Deep breathing signals your brain to calm down by activating the parasympathetic nervous system. It lowers heart rate and helps you think clearly.',
             bgColor: 'bg-blue-50',
             btnColor: 'bg-blue-500'
           },
@@ -550,7 +471,7 @@ const SoundEngine = {
             title: 'Stress Squeeze',
             desc: 'Use your muscles to squeeze out all the angry feelings!',
             science:
-              'Progressive Muscle Relaxation helps release physical tension that builds up when we are angry. Squeezing and releasing tells your body it is safe to relax.',
+              'Progressive Muscle Relaxation helps release physical tension that builds up when we are angry. Squeezing and releasing muscles tells your body it is safe to relax.',
             bgColor: 'bg-purple-50',
             btnColor: 'bg-purple-500'
           },
@@ -562,7 +483,7 @@ const SoundEngine = {
             },
             {
               emoji: '💪😫',
-              text: 'Squeeze all your muscles tight! Count to 5!',
+              text: 'Squeeze all your muscles TIGHT! Count to 5!',
               sound: 'click'
             },
             {
@@ -580,7 +501,7 @@ const SoundEngine = {
             title: 'Safe Walk',
             desc: 'Move your body to a safe place to cool down.',
             science:
-              'Stepping away from the trigger gives your brain time to calm down. Walking also burns off extra adrenaline from anger.',
+              'Leaving the hot spot gives your brain space to cool down. Walking burns off extra adrenaline from anger.',
             bgColor: 'bg-green-50',
             btnColor: 'bg-green-500'
           },
@@ -610,7 +531,7 @@ const SoundEngine = {
             title: 'Count to 10',
             desc: 'Slow down your brain by counting slowly to ten.',
             science:
-              'Counting uses your thinking brain and pulls attention away from angry thoughts, giving your impulse control time to catch up.',
+              'Counting needs focus and gives your brain time to pause and choose kinder actions instead of reacting.',
             bgColor: 'bg-indigo-50',
             btnColor: 'bg-indigo-500'
           },
@@ -634,30 +555,85 @@ const SoundEngine = {
         }
       };
 
-      const playSound = useCallback((key) => {
-        if (!soundEnabled) return;
-        if (!SoundEngine.ctx) SoundEngine.init();
-        if (SoundEngine.ctx.state === 'suspended') SoundEngine.ctx.resume();
-
-        switch (key) {
-          case 'click':      SoundEngine.playClick();      break;
-          case 'start':      SoundEngine.playStart();      break;
-          case 'success':    SoundEngine.playSuccess();    break;
-          case 'throw_whoosh': SoundEngine.playWhoosh();   break;
-          case 'throw_crash':  SoundEngine.playCrash();    break;
-          case 'meltdown':   SoundEngine.playMeltdown();   break;
-          case 'yell':       SoundEngine.playYell();       break;
-          case 'walkaway':   SoundEngine.playWalkAway();   break;
-          case 'breath_in':  SoundEngine.playBreathIn();   break;
-          case 'breath_out': SoundEngine.playBreathOut();  break;
-          default: break;
-        }
-      }, [soundEnabled]);
+      /* ---------- SOUND WRAPPER IN REACT ---------- */
+      const playSound = useCallback(
+        (key) => {
+          if (!soundEnabled) return;
+          try {
+            if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') {
+              SoundEngine.ctx.resume();
+            }
+            switch (key) {
+              case 'click':
+                SoundEngine.playClick();
+                break;
+              case 'start':
+                SoundEngine.playStart();
+                break;
+              case 'success':
+                SoundEngine.playSuccess();
+                break;
+              case 'throw_whoosh':
+                SoundEngine.playWhoosh();
+                break;
+              case 'throw_crash':
+                SoundEngine.playCrash();
+                break;
+              case 'meltdown':
+                SoundEngine.playMeltdown();
+                break;
+              case 'yell':
+                SoundEngine.playYell();
+                break;
+              case 'walkaway':
+                SoundEngine.playWalkAway();
+                break;
+              case 'breath_in':
+                SoundEngine.playBreathIn();
+                break;
+              case 'breath_out':
+                SoundEngine.playBreathOut();
+                break;
+              default:
+                break;
+            }
+          } catch (e) {
+            console.error('Sound error', e);
+          }
+        },
+        [soundEnabled]
+      );
 
       const safePlay = (key) => playSound(key);
 
-      // Navigation handlers
-      const handleStart = () => { safePlay('start'); setCurrentView('character'); };
+      const cycleMusic = () => {
+        const styles = ['twinkle', 'london', 'row'];
+        const nextIndex = (styles.indexOf(musicStyle) + 1) % styles.length;
+        const next = styles[nextIndex];
+        setMusicStyle(next);
+        if (soundEnabled) {
+          if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') {
+            SoundEngine.ctx.resume();
+          }
+          SoundEngine.playMusic(next);
+        }
+      };
+
+      const getMusicLabel = () => {
+        const labels = {
+          twinkle: 'Twinkle ✨',
+          london: 'London Bridge 🏰',
+          row: 'Row Your Boat ⛵'
+        };
+        return labels[musicStyle] || 'Music';
+      };
+
+      /* ---------- NAVIGATION & STATE HANDLERS ---------- */
+      const handleStart = () => {
+        safePlay('start');
+        setCurrentView('character');
+      };
+
       const handleRestartApp = () => {
         safePlay('start');
         setCurrentView('welcome');
@@ -666,22 +642,29 @@ const SoundEngine = {
         setCurrentTool(null);
         setToolStep(1);
       };
-   const handleExit = () => {
-  // try to stop music, but don't let errors block navigation
-  try {
-    SoundEngine.stopBackgroundMusic();
-  } catch (e) {
-    console.warn('SoundEngine error on exit:', e);
-  }
 
-  // from: /feelings-app/emotions/anger/index.html
-  // to:   /feelings-app/goodbye.html
-  window.location.href = '../../goodbye.html';
-};
+      const handleExit = () => {
+        safePlay('click');
+        SoundEngine.stopBackgroundMusic();
+        window.location.href = '/feelings-app/goodbye.html';
+      };
+
+      const handleTryAnotherTool = () => {
+        safePlay('click');
+        setCurrentView('menu');
+        setActiveTab('coping');
+      };
+
+      const handleContinue = () => {
+        safePlay('click');
+        setCurrentView('restart');
+      };
 
       const handleReactionClick = (key) => {
         if (key === 'yell') safePlay('yell');
         if (key === 'walkaway') safePlay('walkaway');
+        if (key === 'throw') safePlay('throw_crash');
+        if (key === 'meltdown') safePlay('meltdown');
         setCurrentView(`negative_${key}`);
       };
 
@@ -711,6 +694,12 @@ const SoundEngine = {
         setToolStep(1);
       };
 
+      const selectCharacter = (char) => {
+        safePlay('click');
+        setCharacter(char);
+        setCurrentView('trigger');
+      };
+
       const goBack = () => {
         safePlay('click');
         if (currentView === 'character') setCurrentView('welcome');
@@ -728,11 +717,21 @@ const SoundEngine = {
       const toggleSound = () => {
         const newState = !soundEnabled;
         setSoundEnabled(newState);
-        if (!newState) SoundEngine.stopAll();
+        if (newState) {
+          if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') {
+            SoundEngine.ctx.resume();
+          }
+          SoundEngine.playMusic(musicStyle);
+        } else {
+          SoundEngine.stopBackgroundMusic();
+        }
       };
 
+      /* ---------- RENDER ---------- */
       return (
         <div className="w-full max-w-md h-[800px] max-h-[90vh] bg-white rounded-[40px] shadow-2xl overflow-hidden border-8 border-white ring-4 ring-sky-200 relative">
+
+          {/* Top chrome (except when fully exited) */}
           {currentView !== 'session_ended' && (
             <div className="bg-slate-100 p-3 flex items-center justify-between border-b border-gray-200">
               <div className="flex gap-2 w-32">
@@ -742,13 +741,13 @@ const SoundEngine = {
                       onClick={goBack}
                       className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1"
                     >
-                      ⬅ Back
+                      ⬅️ Back
                     </button>
                     <button
                       onClick={handleRestartApp}
                       className="px-3 py-1 bg-white rounded-full shadow-sm text-gray-600 font-bold text-sm hover:bg-gray-100 transition flex items-center gap-1"
                     >
-                      Home
+                      🏠 Home
                     </button>
                   </>
                 )}
@@ -758,6 +757,12 @@ const SoundEngine = {
                 <span className="font-bold text-gray-400 text-xs truncate hidden sm:block">
                   Brave Feelings Lab
                 </span>
+                <button
+                  onClick={cycleMusic}
+                  className="mt-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-full hover:bg-blue-100 transition border border-blue-200"
+                >
+                  🎵 {getMusicLabel()}
+                </button>
               </div>
 
               <div className="w-32 flex justify-end gap-2">
@@ -776,15 +781,17 @@ const SoundEngine = {
                     onClick={handleExit}
                     className="px-3 py-1 bg-red-100 text-red-600 rounded-full shadow-sm font-bold text-sm hover:bg-red-200 transition"
                   >
-                    Exit
+                    Exit ❌
                   </button>
                 )}
               </div>
             </div>
           )}
 
+          {/* Main content area */}
           <div className="h-full p-6 pb-20 overflow-y-auto relative">
-            {/* WELCOME */}
+
+            {/* WELCOME VIEW */}
             {currentView === 'welcome' && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-fadeIn">
                 <div className="space-y-2">
@@ -805,7 +812,7 @@ const SoundEngine = {
               </div>
             )}
 
-            {/* CHOOSE CHARACTER */}
+            {/* CHARACTER SELECT */}
             {currentView === 'character' && (
               <div className="flex flex-col items-center h-full text-center space-y-8 p-4">
                 <h2 className="text-3xl font-bold text-gray-700">
@@ -817,27 +824,18 @@ const SoundEngine = {
                       👦
                     </div>
                     <button
-                      onClick={() => {
-                        safePlay('click');
-                        setCharacter('boy');
-                        setCurrentView('trigger');
-                      }}
+                      onClick={() => selectCharacter('boy')}
                       className="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-md hover:bg-blue-600 transition"
                     >
                       Use Boy
                     </button>
                   </div>
-
                   <div className="flex flex-col items-center space-y-4">
                     <div className="text-8xl bg-pink-100 p-6 rounded-3xl border-4 border-pink-300">
                       👧
                     </div>
                     <button
-                      onClick={() => {
-                        safePlay('click');
-                        setCharacter('girl');
-                        setCurrentView('trigger');
-                      }}
+                      onClick={() => selectCharacter('girl')}
                       className="px-6 py-3 bg-pink-500 text-white font-bold rounded-xl shadow-md hover:bg-pink-600 transition"
                     >
                       Use Girl
@@ -847,25 +845,22 @@ const SoundEngine = {
               </div>
             )}
 
-            {/* TRIGGER SCENE */}
+            {/* TRIGGER STORY */}
             {currentView === 'trigger' && (
               <div className="flex flex-col items-center h-full text-center justify-between py-6">
                 <h2 className="text-2xl font-bold text-gray-700">
-                  Uh oh. Something happened.
+                  Uh Oh! Something happened!
                 </h2>
-
                 <div className="bg-white p-8 rounded-3xl shadow-xl border-4 border-gray-200 w-full max-w-sm relative">
                   <div className="text-8xl mb-4">🧸➡️💔</div>
                   <div className="text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
                     ⚡
                   </div>
                 </div>
-
                 <p className="text-xl font-medium text-gray-600 px-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200">
-                  You were playing with your favorite toy, but it suddenly broke.
-                  Now you feel a hot fire in your tummy. You are angry.
+                  You were playing with your favorite toy, but it suddenly broke!
+                  Now you feel a hot fire in your tummy. You are ANGRY!
                 </p>
-
                 <div className="flex gap-4 w-full px-6">
                   <button
                     onClick={goBack}
@@ -886,16 +881,17 @@ const SoundEngine = {
               </div>
             )}
 
-            {/* MENU: NEGATIVE vs COPING */}
+            {/* MENU */}
             {currentView === 'menu' && (
               <div className="flex flex-col h-full">
                 <div className="text-center mb-4">
                   <h2 className="text-2xl font-bold text-gray-800">
                     What will you do?
                   </h2>
-                  <p className="text-gray-500">Tap a button to see what happens.</p>
+                  <p className="text-gray-500">
+                    Tap a button to see what happens.
+                  </p>
                 </div>
-
                 <div className="flex bg-gray-200 p-1 rounded-2xl mb-4">
                   <button
                     onClick={() => {
@@ -965,10 +961,9 @@ const SoundEngine = {
               </div>
             )}
 
-            {/* NEGATIVE OUTCOMES */}
+            {/* NEGATIVE OUTCOME VIEWS */}
             {currentView.startsWith('negative_') && (
               <NegativeOutcome
-                data={NEGATIVE_REACTIONS[currentView.replace('negative_', '')]}
                 character={character}
                 onRetry={() => setCurrentView('menu')}
                 onCoping={() => {
@@ -976,11 +971,12 @@ const SoundEngine = {
                   setActiveTab('coping');
                   setCurrentView('menu');
                 }}
+                data={NEGATIVE_REACTIONS[currentView.replace('negative_', '')]}
               />
             )}
 
-            {/* TOOL INTRO + SEQUENCE */}
-            {currentView === 'tool_intro' && currentTool && (
+            {/* TOOL INTRO & SEQUENCE */}
+            {currentView === 'tool_intro' && (
               <ToolIntro
                 tool={COPING_TOOLS[currentTool]}
                 onStart={startToolSequence}
@@ -988,7 +984,7 @@ const SoundEngine = {
               />
             )}
 
-            {currentView === 'tool_sequence' && currentTool && (
+            {currentView === 'tool_sequence' && (
               <ToolSequence
                 tool={COPING_TOOLS[currentTool]}
                 step={toolStep}
@@ -998,11 +994,11 @@ const SoundEngine = {
               />
             )}
 
-            {/* REFLECTION */}
+            {/* REFLECTION VIEW */}
             {currentView === 'reflection' && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fadeIn">
                 <h2 className="text-3xl font-black text-green-600">
-                  Great job.
+                  Great Job!
                 </h2>
                 <div className="relative">
                   <div className="text-9xl animate-bounce-slow">😊</div>
@@ -1013,27 +1009,19 @@ const SoundEngine = {
                 <div className="bg-green-50 p-6 rounded-2xl border-2 border-green-200 mx-2">
                   <p className="text-xl text-gray-700 font-medium">
                     You felt angry, but you used a tool to calm down. Now your
-                    brain is ready to play again.
+                    brain is ready to play again!
                   </p>
                 </div>
-
                 <div className="w-full space-y-3">
                   <button
-                    onClick={() => {
-                      safePlay('click');
-                      setCurrentView('menu');
-                      setActiveTab('coping');
-                    }}
+                    onClick={handleTryAnotherTool}
                     className="w-full py-3 bg-white text-green-700 font-bold text-xl rounded-xl border-2 border-green-300 hover:bg-green-50"
                   >
                     Try Another Tool
                   </button>
                   <button
-                    onClick={() => {
-                      safePlay('click');
-                      setCurrentView('restart');
-                    }}
-                    className="w-full py-4 bg-blue-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-blue-600 animate-pulse"
+                    onClick={handleContinue}
+                    className="w-full py-4 bg-blue-500 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-blue-600 animate-pulse"
                   >
                     Continue
                   </button>
@@ -1041,7 +1029,7 @@ const SoundEngine = {
               </div>
             )}
 
-            {/* RESTART / EXIT */}
+            {/* RESTART OR EXIT */}
             {currentView === 'restart' && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -1051,24 +1039,22 @@ const SoundEngine = {
                   onClick={handleRestartApp}
                   className="w-full max-w-xs py-4 bg-red-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-red-600 transform hover:scale-105 transition"
                 >
-                  Restart Angry
+                  Restart ANGRY 😡
                 </button>
                 <button
                   onClick={handleExit}
                   className="w-full max-w-xs py-4 bg-purple-500 text-white text-xl font-bold rounded-2xl shadow-lg hover:bg-purple-600 transform hover:scale-105 transition opacity-90"
                 >
-                  Exit / All Done
+                  Exit / All Done 👋
                 </button>
               </div>
             )}
 
-            {/* SESSION ENDED OVERLAY */}
+            {/* SESSION ENDED OVERLAY (not used once we redirect, but kept) */}
             {currentView === 'session_ended' && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-slate-900 text-white animate-fadeIn absolute inset-0 z-50">
                 <div className="text-8xl mb-4 grayscale opacity-80">🌙</div>
-                <h2 className="text-3xl font-bold text-blue-200">
-                  Goodnight.
-                </h2>
+                <h2 className="text-3xl font-bold text-blue-200">Goodnight!</h2>
                 <p className="text-xl text-gray-400">
                   The Brave Feelings Lab is closed for now.
                 </p>
