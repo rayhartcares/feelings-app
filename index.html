@@ -5,128 +5,196 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brave Feelings Lab – Emotion Menu</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Soft floating glow behind the phone */
+    .phone-glow {
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.3),
+        0 40px 120px rgba(15, 23, 42, 0.35);
+    }
+
+    /* Gradient halo behind Benne */
+    .avatar-halo {
+      background: radial-gradient(circle at 30% 0%,
+        rgba(251, 191, 36, 0.75),
+        transparent 60%
+      ),
+      radial-gradient(circle at 80% 120%,
+        rgba(59, 130, 246, 0.7),
+        transparent 55%
+      );
+    }
+
+    /* Soft gradient for each emotion card */
+    .card-anger {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+    }
+    .card-frustrated {
+      background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    }
+    .card-sadness {
+      background: linear-gradient(135deg, #e5e7eb, #f3f4f6);
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-sky-100 flex items-center justify-center p-4">
+
+<body class="min-h-screen bg-gradient-to-br from-sky-100 via-indigo-50 to-rose-100 flex items-center justify-center p-4 font-sans">
 
   <!-- Phone shell -->
-  <div class="w-full max-w-md bg-white rounded-[40px] shadow-2xl border-8 border-white ring-4 ring-sky-200 overflow-hidden flex flex-col">
-
-    <!-- Top bar -->
-    <header class="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
-      <span class="text-xs font-semibold text-slate-400 tracking-widest uppercase">
+  <main
+    class="relative w-full max-w-md bg-white rounded-[40px] phone-glow overflow-hidden border-[10px] border-white"
+  >
+    <!-- Top chrome -->
+    <header class="bg-slate-50/90 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <span class="text-[10px] tracking-[0.2em] font-semibold text-slate-400 uppercase">
         Brave Feelings Lab
       </span>
-      <button class="flex items-center gap-2 px-3 py-1 text-xs font-semibold text-slate-500 bg-white border border-slate-200 rounded-full shadow-sm">
+
+      <!-- Simple music badge (no JS needed here) -->
+      <button
+        class="text-[11px] px-3 py-1 rounded-full border border-sky-200 bg-sky-50 text-sky-600 font-semibold flex items-center gap-1 shadow-sm">
         <span>Music</span>
-        <span>🎵</span>
+        <span>♫</span>
       </button>
     </header>
 
     <!-- Scrollable content -->
-    <main class="flex-1 overflow-y-auto px-6 pt-5 pb-8">
-      
-      <!-- Benne Hart block -->
-      <section class="flex flex-col items-center mb-6">
-        <img
-          src="assets/benne-hart.png"
-          alt="Benne Hart – Creator at Brave Feelings Lab"
-          class="w-24 h-24 rounded-full object-cover shadow-md border-4 border-sky-100"
-        />
-        <p class="mt-3 text-sm font-semibold text-slate-700">
+    <section class="h-[800px] max-h-[90vh] overflow-y-auto bg-gradient-to-b from-sky-50/60 via-white to-slate-50 px-6 pb-10 pt-8">
+
+      <!-- Benne hero -->
+      <div class="flex flex-col items-center mb-6">
+        <div class="avatar-halo rounded-full p-[3px] mb-2">
+          <div class="bg-white rounded-full p-[3px] shadow-md">
+            <!-- UPDATE THIS SRC TO YOUR ACTUAL FILE -->
+            <img
+              src="assets/benne-hart.png"
+              alt="Benne Hart – Creator at Brave Feelings Lab"
+              class="w-20 h-20 rounded-full object-cover"
+            />
+          </div>
+        </div>
+
+        <p class="text-[11px] font-semibold tracking-[0.15em] text-slate-400 uppercase">
           Benne Hart
         </p>
-        <p class="text-xs text-slate-400 uppercase tracking-[0.2em]">
+        <p class="text-[11px] tracking-[0.2em] text-slate-400 uppercase mb-3">
           Creator at Brave Feelings Lab
         </p>
-      </section>
 
-      <!-- Heading -->
-      <section class="text-center mb-6">
-        <h1 class="text-2xl font-black text-slate-800 mb-1">
-          Which emotion are you exploring today?
+        <h1 class="text-xl md:text-2xl font-extrabold text-slate-800 text-center leading-snug">
+          Which emotion are you<br />exploring today?
         </h1>
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-slate-500 mt-2 text-center max-w-xs">
           Tap a card to open its Emotion Navigator.
         </p>
-      </section>
+      </div>
 
       <!-- Emotion cards -->
-      <section class="space-y-4">
-        <!-- Anger -->
+      <div class="space-y-4">
+        <!-- ANGER -->
         <a
           href="emotions/anger/"
-          class="flex items-center gap-4 px-4 py-4 rounded-2xl bg-red-50 border-2 border-red-100 shadow-sm hover:shadow-md hover:bg-red-100/70 transition"
+          class="block rounded-3xl card-anger border border-red-100/80 shadow-md shadow-red-100 hover:shadow-lg hover:shadow-red-200 transition-transform hover:-translate-y-0.5"
         >
-          <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-white text-4xl shadow-sm">
-            😡
+          <div class="flex items-center gap-4 px-5 py-4">
+            <div
+              class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-inner shadow-red-100"
+            >
+              😡
+            </div>
+
+            <div class="flex-1 text-left">
+              <p class="text-[11px] font-semibold tracking-[0.24em] text-red-400 uppercase">
+                Emotion Navigator
+              </p>
+              <p class="text-lg font-extrabold text-red-700">
+                Anger
+              </p>
+              <p class="text-xs text-red-700/80 mt-0.5">
+                Learn what to do when anger feels too big.
+              </p>
+            </div>
+
+            <div
+              class="w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-red-500 text-lg shadow-sm"
+            >
+              ▶
+            </div>
           </div>
-          <div class="flex-1 text-left">
-            <p class="text-sm font-semibold tracking-[0.18em] text-red-400 uppercase">
-              Emotion Navigator
-            </p>
-            <p class="text-xl font-black text-red-600">
-              Anger
-            </p>
-            <p class="text-xs text-red-500 mt-1">
-              Learn what to do when anger feels too big.
-            </p>
-          </div>
-          <span class="text-red-400 text-xl">▶</span>
         </a>
 
-        <!-- Frustrated -->
+        <!-- FRUSTRATED -->
         <a
           href="emotions/frustrated/"
-          class="flex items-center gap-4 px-4 py-4 rounded-2xl bg-amber-50 border-2 border-amber-100 shadow-sm hover:shadow-md hover:bg-amber-100/70 transition"
+          class="block rounded-3xl card-frustrated border border-amber-100 shadow-md shadow-amber-100 hover:shadow-lg hover:shadow-amber-200 transition-transform hover:-translate-y-0.5"
         >
-          <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-white text-4xl shadow-sm">
-            😫
+          <div class="flex items-center gap-4 px-5 py-4">
+            <div
+              class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-inner shadow-amber-100"
+            >
+              😫
+            </div>
+
+            <div class="flex-1 text-left">
+              <p class="text-[11px] font-semibold tracking-[0.24em] text-amber-500 uppercase">
+                Emotion Navigator
+              </p>
+              <p class="text-lg font-extrabold text-amber-700">
+                Frustrated
+              </p>
+              <p class="text-xs text-amber-700/80 mt-0.5">
+                For “this is too hard!” moments.
+              </p>
+            </div>
+
+            <div
+              class="w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-amber-500 text-lg shadow-sm"
+            >
+              ▶
+            </div>
           </div>
-          <div class="flex-1 text-left">
-            <p class="text-sm font-semibold tracking-[0.18em] text-amber-400 uppercase">
-              Emotion Navigator
-            </p>
-            <p class="text-xl font-black text-amber-600">
-              Frustrated
-            </p>
-            <p class="text-xs text-amber-500 mt-1">
-              For “this is too hard!” moments.
-            </p>
-          </div>
-          <span class="text-amber-400 text-xl">▶</span>
         </a>
 
-        <!-- Sadness (coming soon) -->
+        <!-- SADNESS (disabled / coming soon) -->
         <div
-          class="flex items-center gap-4 px-4 py-4 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 opacity-60"
+          class="rounded-3xl card-sadness border border-slate-200/80 shadow-inner shadow-slate-200/40 opacity-70"
         >
-          <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-white text-4xl shadow-sm">
-            😢
+          <div class="flex items-center gap-4 px-5 py-4">
+            <div
+              class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl text-slate-400 shadow-inner"
+            >
+              😢
+            </div>
+
+            <div class="flex-1 text-left">
+              <p class="text-[11px] font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                Emotion Navigator
+              </p>
+              <p class="text-lg font-extrabold text-slate-500">
+                Sadness
+              </p>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Coming soon – gentle tools for big tears.
+              </p>
+            </div>
+
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.18em]">
+              Soon
+            </div>
           </div>
-          <div class="flex-1 text-left">
-            <p class="text-sm font-semibold tracking-[0.18em] text-slate-400 uppercase">
-              Emotion Navigator
-            </p>
-            <p class="text-xl font-black text-slate-500">
-              Sadness
-            </p>
-            <p class="text-xs text-slate-400 mt-1">
-              Coming soon – gentle tools for big tears.
-            </p>
-          </div>
-          <span class="text-slate-300 text-xs font-semibold uppercase">
-            Soon
-          </span>
         </div>
-      </section>
+      </div>
 
-    </main>
-
-    <!-- Footer -->
-    <footer class="px-4 py-3 bg-slate-900 text-slate-100 text-center text-[11px] tracking-[0.25em] uppercase">
-      © 2025–Present Brave Feelings Lab · bravefeelings.com
-    </footer>
-
-  </div>
+      <!-- Footer -->
+      <footer class="mt-8 pt-4 border-t border-slate-200/70 text-center text-[11px] text-slate-400">
+        <p class="tracking-[0.22em] uppercase">
+          © 2025–Present Brave Feelings Lab
+        </p>
+        <p class="tracking-[0.24em] uppercase mt-1">
+          bravefeelings.com
+        </p>
+      </footer>
+    </section>
+  </main>
 </body>
 </html>
