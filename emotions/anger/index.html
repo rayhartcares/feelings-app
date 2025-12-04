@@ -70,75 +70,203 @@
 <body class="bg-sky-100 min-h-screen flex items-center justify-center font-sans">
   <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+ <script type="text/babel">
+  const { useState, useEffect, useCallback } = React;
+
+  // --- SOUND ENGINE ---
+  const SoundEngine = {
+    ...
+  };
 
     /* -------------------------------------------------
        SIMPLE SOUND ENGINE (no external files)
     -------------------------------------------------- */
-    const SoundEngine = {
-      ctx: null,
-      bgInterval: null,
-      bgNodes: [],
-      isBgPlaying: false,
-      init() {
-        if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-      },
-      playTone(freq, type, duration, volume = 0.08) {
-        if (!this.ctx) this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + duration);
-      },
-      playNoise(duration, volume = 0.15) {
-        if (!this.ctx) this.init();
-        const bufferSize = this.ctx.sampleRate * duration;
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-        const src = this.ctx.createBufferSource();
-        src.buffer = buffer;
-        const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-        src.connect(gain);
-        gain.connect(this.ctx.destination);
-        src.start();
-      },
-      playClick()    { this.playTone(800,   'sine',     0.1, 0.1); },
-      playStart()    { this.playTone(400,   'triangle', 0.3, 0.1); },
-      playSuccess()  {
-        this.playTone(523.25, 'sine', 0.3, 0.1);
-        setTimeout(() => this.playTone(659.25, 'sine', 0.3, 0.1), 120);
-        setTimeout(() => this.playTone(783.99, 'sine', 0.4, 0.1), 240);
-      },
-      playWhoosh()   { this.playNoise(0.3, 0.12); },
-      playCrash()    { this.playNoise(0.5, 0.25); },
-      playMeltdown() { this.playTone(150,   'sawtooth', 0.4, 0.15); },
-      playYell()     { this.playTone(300,   'sawtooth', 0.6, 0.15); },
-      playWalkAway() {
-        this.playTone(200, 'square', 0.12, 0.06);
-        setTimeout(() => this.playTone(300, 'square', 0.12, 0.06), 120);
-      },
-      playBreathIn()  { this.playNoise(1.2, 0.06); },
-      playBreathOut() { this.playNoise(1.2, 0.06); },
-      stopAll() {
-        if (this.bgInterval) clearInterval(this.bgInterval);
-        this.bgInterval = null;
-        this.bgNodes.forEach(n => { try { n.stop(); n.disconnect(); } catch(e){} });
-        this.bgNodes = [];
-        this.isBgPlaying = false;
+    // --- SOUND ENGINE WITH KIDS’ SONGS ---
+const SoundEngine = {
+  ctx: null,
+  bgInterval: null,
+  bgNodes: [],
+  isBgPlaying: false,
+  currentTrack: 'twinkle',
+
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+
+  // Simple helper: single tone
+  playTone(freq, type = 'sine', duration = 0.5, volume = 0.12) {
+    if (!this.ctx) this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.01,
+      this.ctx.currentTime + duration
+    );
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
+  },
+
+  // White-noise helper for whooshes / breaths
+  playNoise(duration = 0.5, volume = 0.2) {
+    if (!this.ctx) this.init();
+    const bufferSize = this.ctx.sampleRate * duration;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.01,
+      this.ctx.currentTime + duration
+    );
+    noise.connect(gain);
+    gain.connect(this.ctx.destination);
+    noise.start();
+  },
+
+  // ====== BACKGROUND MELODIES (KIDS’ SONGS) ======
+
+  stopBackgroundMusic() {
+    if (this.bgInterval) {
+      clearInterval(this.bgInterval);
+      this.bgInterval = null;
+    }
+    this.bgNodes.forEach(node => {
+      try {
+        node.stop && node.stop();
+        node.disconnect();
+      } catch (e) {}
+    });
+    this.bgNodes = [];
+    this.isBgPlaying = false;
+  },
+
+  playMusic(style) {
+    if (!this.ctx) this.init();
+    if (this.ctx.state === 'suspended') return;
+
+    this.stopBackgroundMusic();
+    this.currentTrack = style;
+    this.isBgPlaying = true;
+
+    if (style === 'twinkle') this.playTwinkle();
+    if (style === 'london') this.playLondonBridge();
+    if (style === 'row') this.playRowRow();
+  },
+
+  // Shared note table (C major, 4th octave)
+  NOTES: {
+    C4: 261.63,
+    D4: 293.66,
+    E4: 329.63,
+    F4: 349.23,
+    G4: 392.0,
+    A4: 440.0,
+    B4: 493.88
+  },
+
+  // Generic looping melody player
+  playLoopingMelody(sequence, beatMs = 400) {
+    if (!this.ctx) this.init();
+    let index = 0;
+
+    this.bgInterval = setInterval(() => {
+      const step = sequence[index];
+      if (!step) {
+        index = 0;
+        return;
       }
-    };
+
+      const freq = step.note ? this.NOTES[step.note] : null;
+      const beats = step.beats || 1;
+
+      if (freq) {
+        this.playTone(freq, 'triangle', (beatMs * beats) / 1000, 0.08);
+      }
+      index = (index + 1) % sequence.length;
+    }, beatMs);
+  },
+
+  // “Twinkle Twinkle Little Star”
+  playTwinkle() {
+    const S = [
+      { note: 'C4', beats: 1 }, { note: 'C4', beats: 1 },
+      { note: 'G4', beats: 1 }, { note: 'G4', beats: 1 },
+      { note: 'A4', beats: 1 }, { note: 'A4', beats: 1 },
+      { note: 'G4', beats: 2 },
+
+      { note: 'F4', beats: 1 }, { note: 'F4', beats: 1 },
+      { note: 'E4', beats: 1 }, { note: 'E4', beats: 1 },
+      { note: 'D4', beats: 1 }, { note: 'D4', beats: 1 },
+      { note: 'C4', beats: 2 }
+    ];
+    this.playLoopingMelody(S, 420);
+  },
+
+  // “London Bridge Is Falling Down”
+  playLondonBridge() {
+    const S = [
+      { note: 'G4', beats: 1 }, { note: 'A4', beats: 1 }, { note: 'G4', beats: 1 },
+      { note: 'F4', beats: 1 }, { note: 'E4', beats: 1 }, { note: 'F4', beats: 1 },
+      { note: 'G4', beats: 2 },
+
+      { note: 'D4', beats: 1 }, { note: 'E4', beats: 1 }, { note: 'F4', beats: 1 },
+      { note: 'E4', beats: 1 }, { note: 'F4', beats: 1 }, { note: 'G4', beats: 2 }
+    ];
+    this.playLoopingMelody(S, 380);
+  },
+
+  // “Row, Row, Row Your Boat”
+  playRowRow() {
+    const S = [
+      { note: 'C4', beats: 1 }, { note: 'C4', beats: 1 }, { note: 'C4', beats: 1 },
+      { note: 'D4', beats: 1 }, { note: 'E4', beats: 2 },
+
+      { note: 'E4', beats: 1 }, { note: 'D4', beats: 1 }, { note: 'E4', beats: 1 },
+      { note: 'F4', beats: 1 }, { note: 'G4', beats: 2 },
+
+      { note: 'C4', beats: 0.5 }, { note: 'C4', beats: 0.5 },
+      { note: 'G4', beats: 0.5 }, { note: 'G4', beats: 0.5 },
+      { note: 'E4', beats: 0.5 }, { note: 'E4', beats: 0.5 },
+      { note: 'C4', beats: 2 }
+    ];
+    this.playLoopingMelody(S, 360);
+  },
+
+  // ====== SHORT SOUND EFFECTS (keep these) ======
+  playClick() { this.playTone(900, 'square', 0.08, 0.08); },
+  playStart() { this.playTone(450, 'triangle', 0.25, 0.1); },
+  playSuccess() {
+    this.playTone(523.25, 'sine', 0.25, 0.09);  // C5
+    setTimeout(() => this.playTone(659.25, 'sine', 0.25, 0.09), 120); // E5
+    setTimeout(() => this.playTone(783.99, 'sine', 0.4, 0.09), 240);  // G5
+  },
+  playWhoosh() { this.playNoise(0.4, 0.12); },
+  playCrash() { this.playNoise(0.6, 0.25); },
+  playMeltdown() { this.playTone(160, 'sawtooth', 0.5, 0.18); },
+  playYell() { this.playTone(320, 'sawtooth', 0.5, 0.18); },
+  playWalkAway() {
+    this.playTone(220, 'square', 0.12, 0.08);
+    setTimeout(() => this.playTone(300, 'square', 0.12, 0.08), 120);
+  },
+  playBreathIn() { this.playNoise(1.2, 0.05); },
+  playBreathOut() { this.playNoise(1.2, 0.05); }
+};
 
     /* -----------------------------------------------
        RED ANGRY BLOCK (welcome screen mascot)
