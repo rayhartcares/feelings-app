@@ -538,10 +538,10 @@
         setCurrentTool(null);
         setToolStep(1);
       };
-      const handleExit = () => {
-    SoundEngine.stopBackgroundMusic();
-    // from /emotions/anger/ go back to /goodbye.html at the app root
-    window.location.href = '../goodbye.html';
+     const handleExit = () => {
+  SoundEngine.stopBackgroundMusic();
+  // Absolute path inside your GitHub Pages site
+  window.location.href = '/feelings-app/goodbye.html';
 };
 
       const handleReactionClick = (key) => {
