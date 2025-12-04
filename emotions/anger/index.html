@@ -630,9 +630,21 @@
 
       /* ---------- NAVIGATION & STATE HANDLERS ---------- */
       const handleStart = () => {
-        safePlay('start');
-        setCurrentView('character');
-      };
+  // Ensure audio context is ready
+  SoundEngine.init();
+
+  // Set the default track if needed
+  SoundEngine.currentTrack = musicStyle; // 'twinkle' by default
+
+  // Start the background music as soon as the user taps START
+  SoundEngine.playMusic(musicStyle);
+
+  // Optional: small UI sound on tap
+  safePlay('start');
+
+  // Move into the character selection screen
+  setCurrentView('character');
+};
 
       const handleRestartApp = () => {
         safePlay('start');
