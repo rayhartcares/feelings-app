@@ -538,10 +538,17 @@
         setCurrentTool(null);
         setToolStep(1);
       };
-     const handleExit = () => {
-  SoundEngine.stopBackgroundMusic();
-  // Absolute path inside your GitHub Pages site
-  window.location.href = '/feelings-app/goodbye.html';
+   const handleExit = () => {
+  // try to stop music, but don't let errors block navigation
+  try {
+    SoundEngine.stopBackgroundMusic();
+  } catch (e) {
+    console.warn('SoundEngine error on exit:', e);
+  }
+
+  // from: /feelings-app/emotions/anger/index.html
+  // to:   /feelings-app/goodbye.html
+  window.location.href = '../../goodbye.html';
 };
 
       const handleReactionClick = (key) => {
